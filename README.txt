@@ -1,0 +1,3 @@
+-Level Sets
+-Active Shape Models
+-Region Growing
