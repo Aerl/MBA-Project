@@ -1,8 +1,24 @@
+clear all;
+homedirectory = pwd;
+parentpath = cd(cd('..'));
+dataset = 'p02';
+scan = 't1';
 
-%list_of_files=dir(fullfile('', '*.dat'));
+filepath = strcat(parentpath,'/','Data_v2/',dataset,'/',scan);
 
-filePath = './data/Data_v2/p01/t1/p01_t1_tse_00001.dcm';
-info = dicominfo(filename);
-image = dicomread(info);
-figure,
-imshow(image,[]);
+listOfFiles = dir(filepath);
+
+%structSize = length(listOfFiles(name));
+for i = 1:numel(listOfFiles)
+    filename = listOfFiles(i).name;
+    if ~strcmp(filename,'.') && ~strcmp(filename,'..')
+        info = dicominfo(strcat(filepath,'/',filename));
+        image = dicomread(info);
+        figure,
+        imshow(image,[]);
+    end
+        
+end
+    
+
+
