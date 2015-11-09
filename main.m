@@ -1,15 +1,24 @@
+% clear workspace
 clear all;
+% add subfolders
 addpath('loadDICOM');
-addpath('Imshow3D');
+addpath('imtool3D');
 
+%% Load Image
+
+% set file path by text file
 parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
 dataset = 'p02';
-scan = 't1';
-
+scan = 't1_wk';
 filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
 
-path = getAllFiles(filepath);
-[names,image3d] = loadDICOM(path);
+% use dialog to select folder
+% filepath = uigetdir;
 
-figure,
-imshow3D(image3d,[])
+% load all images in filepath
+path = getAllFiles(filepath);
+[names,images] = loadDICOM(path);
+
+img = double(cell2mat(images(3)));
+ 
+imtool3D(img);
