@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 30-Nov-2015 14:24:50
+% Last Modified by GUIDE v2.5 30-Nov-2015 16:21:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before MBA is made visible.
 function MBA_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -61,6 +60,8 @@ guidata(hObject, handles);
 % UIWAIT makes MBA wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+addlistener(handles.DataSetSlicer,'ContinuousValueChange',@DataSetSlicer_ContiniousCallback);
+
 
 % --- Outputs from this function are returned to the command line.
 function varargout = MBA_OutputFcn(hObject, eventdata, handles) 
@@ -71,3 +72,77 @@ function varargout = MBA_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
+% --- Executes on button press in LoadDataSetButton.
+function LoadDataSetButton_Callback(hObject, eventdata, handles)
+% hObject    handle to LoadDataSetButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+directory = uigetdir();
+
+class(directory)
+if(ischar(directory))
+    path = getAllFiles(directory);
+    [names,images] = loadDICOM(path);
+
+    handles.visData = images;
+    handles.visNames = names;
+
+    dssize = size(images{1,1});
+
+    set(handles.DataSetSlicer,'Min',1);
+    set(handles.DataSetSlicer,'Max',dssize(3));
+    set(handles.DataSetSlicer,'Value',1);
+
+    cla(handles.DataSetAxes);
+
+    display_dataset(handles);
+
+    % Update handles structure
+    guidata(hObject, handles);
+end
+
+
+% --- Executes on slider movement.
+function DataSetSlicer_Callback(hObject, eventdata, handles)
+% hObject    handle to DataSetSlicer (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function DataSetSlicer_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to DataSetSlicer (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+% --- Executes on slider movement.
+function DataSetSlicer_ContiniousCallback(hObject,eventData)
+% hObject    handle to slider1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+% first we need the handles structure which we can get from hObject
+handles = guidata(hObject);
+
+if isfield(handles,'visData')
+    display_dataset(handles);
+end
+
+function display_dataset(handles)
+val = floor(get(handles.DataSetSlicer,'Value'));
+imshow(handles.visData{1,1}(:,:,val),[],'Parent',handles.DataSetAxes);
