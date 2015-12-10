@@ -12,7 +12,7 @@ function [ isotropicVolume ] = anisoToIsotropic( anisotropicVolume, xRes, yRes, 
     %get all combinations
     [Sx, Sy, Sz] = meshgrid(samplesX,samplesY, samplesZ);
     
-    isotropicVolume = interp3(anisotropicVolume, Sx, Sy, Sz);
+    isotropicVolume = interp3(anisotropicVolume, Sx, Sy, Sz, 'cubic');
 
 end
 
