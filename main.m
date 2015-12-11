@@ -21,7 +21,7 @@ path = getAllFiles(filepath);
 [names,images] = loadDICOM(path);
 
 % select Vertebra
-img = double(images{4});
+img = images{4};
 
 %% Hybrid 3D Levelset
 propagation_weight = 1e-4; 
@@ -34,11 +34,11 @@ mu = 200;
 margin = 8; 
 % center = size(img);
 % center = round(center/2); 
-center = [32 37 8];
+center = [32 37 8*4];
 phi = zeros(size(img)); 
 phi(center(1)-margin:center(1)+margin,...
     center(2)-margin:center(2)+margin,...
-    center(3)-4:center(3)+4) = 1; 
+    center(3)-(4*4):center(3)+(4*4)) = 1; 
 
 for i = 1:5
     phi = ac_hybrid_model(img-mu, phi-.5, propagation_weight, GAC_weight, g, ...
@@ -47,6 +47,7 @@ end
 
 figure;
 slice = [2,3,4,5,6,7,8,9,10,11,12,13];
+slice = slice*4;
 for i = 1:numel(slice)
     subplot(3,4,i); imshow(img(:,:,slice(i)),[]); hold on; 
     c = contours(phi(:,:,slice(i)),[0,0]);

@@ -6,8 +6,8 @@ function [ isotropicVolume ] = anisoToIsotropic( anisotropicVolume, xRes, yRes, 
     %get sample ratios per dim
     Div = minDim./[xRes, yRes, zRes];
     %get points where to sample
-    samplesX = (1:Div(1):axDim);
-    samplesY = (1:Div(2):ayDim);
+    samplesX = (1:Div(2):ayDim);
+    samplesY = (1:Div(1):axDim);
     samplesZ = (1:Div(3):azDim);
     %get all combinations
     [Sx, Sy, Sz] = meshgrid(samplesX,samplesY, samplesZ);

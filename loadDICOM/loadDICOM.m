@@ -17,6 +17,8 @@ for j = 1:numberOfImages
     
     data(:,:) = fliplr(data(:,:));
     if (j > 1 && ~strcmp(lastV,currentV))
+        image3d = double(image3d);
+        image3d = anisoToIsotropic(image3d, pixDim(1), pixDim(2), dcm.SpacingBetweenSlices);
         images{vertebra} = image3d;
         name = [name ; currentV(end-1:end)];
         clear image3d;
@@ -31,7 +33,6 @@ for j = 1:numberOfImages
     index = index + 1;
     
 end
-
 
 
 end
