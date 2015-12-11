@@ -1,11 +1,12 @@
 % clear workspace
-clear all;
+% clear all;
 close all;
 % add subfolders
 addpath('loadDICOM');
+addpath('AOSLevelsetSegmentationToolboxM');
 addpath('imtool3D');
 
-%% Load Image (just for image data nor for segmentation)
+%% Load Image (just for image data not for segmentation)
 
 % set file path by text file
 % parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
