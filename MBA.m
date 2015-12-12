@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 30-Nov-2015 16:21:47
+% Last Modified by GUIDE v2.5 12-Dec-2015 15:37:03
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -94,6 +94,8 @@ if(ischar(directory))
     set(handles.DataSetSlicer,'Min',1);
     set(handles.DataSetSlicer,'Max',dssize(3));
     set(handles.DataSetSlicer,'Value',1);
+    
+    set(handles.DataSetPopUp,'String',names);
 
     cla(handles.DataSetAxes);
 
@@ -143,5 +145,29 @@ if isfield(handles,'visData')
 end
 
 function display_dataset(handles)
-val = floor(get(handles.DataSetSlicer,'Value'));
-imshow(handles.visData{1,1}(:,:,val),[],'Parent',handles.DataSetAxes);
+slice_num = floor(get(handles.DataSetSlicer,'Value'));
+vertebra_num = get(handles.DataSetPopUp,'Value');
+imshow(handles.visData{1,vertebra_num}(:,:,slice_num),[],'Parent',handles.DataSetAxes);
+
+
+% --- Executes on selection change in DataSetPopUp.
+function DataSetPopUp_Callback(hObject, eventdata, handles)
+% hObject    handle to DataSetPopUp (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns DataSetPopUp contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from DataSetPopUp
+display_dataset(handles)
+
+% --- Executes during object creation, after setting all properties.
+function DataSetPopUp_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to DataSetPopUp (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
