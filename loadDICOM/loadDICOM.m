@@ -2,8 +2,6 @@ function [name,images] = loadDICOM(path_name)
 
 s = size(path_name);
 numberOfImages = s(1);
-% CAUTION! Number of slices may vary between different datasets!
-% Number of all dataset divided by the number of slices per dataset.
 name = {};
 vertebra = 1;
 lastV = '';
@@ -17,6 +15,8 @@ for j = 1:numberOfImages
     
     data(:,:) = fliplr(data(:,:));
     if (j > 1 && ~strcmp(lastV,currentV))
+        image3d = double(image3d);
+        image3d = anisoToIsotropic(image3d, pixDim(1), pixDim(2), dcm.SpacingBetweenSlices);
         images{vertebra} = image3d;
         name = [name ; currentV(end-1:end)];
         clear image3d;
@@ -32,6 +32,9 @@ for j = 1:numberOfImages
     
 end
 
+image3d = double(image3d);
+image3d = anisoToIsotropic(image3d, pixDim(1), pixDim(2), dcm.SpacingBetweenSlices);
+images{vertebra} = image3d;
 
 
 end

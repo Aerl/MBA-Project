@@ -17,3 +17,6 @@ slprj/
 
 #Dataset Path File
 PathToDataset.txt
+
+# Level Set Toolbox
+AOSLevelsetSegmentationToolboxM/
