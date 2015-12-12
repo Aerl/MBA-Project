@@ -1,5 +1,6 @@
 % add scripts and stuff
-addpath loadDICOM
+addpath(genpath('loadDICOM'));
+addpath(genpath('AOSLevelsetSegmentationToolboxM'));
 
 % start gui
 MBA;
