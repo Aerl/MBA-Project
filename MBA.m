@@ -82,7 +82,6 @@ function LoadDataSetButton_Callback(hObject, eventdata, handles)
 
 directory = uigetdir();
 
-class(directory)
 if(ischar(directory))
     path = getAllFiles(directory);
     [names,images] = loadDICOM(path);
