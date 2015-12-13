@@ -29,7 +29,7 @@ filepath = uigetdir;
 
 % load all images in filepath
 path = getAllFiles(filepath);
-[s(1).Name,s(1).Images] = loadDICOM(path);
+[s(1).Names,s(1).Images] = loadDICOM(path);
 
 % select Vertebra
 image = s(1).Images{4};
