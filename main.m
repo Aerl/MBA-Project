@@ -1,12 +1,12 @@
 %% structs
 global s;
-s = struct('Images',{},'Names',{});
+s = struct('Images',{},'Names',{}, 'Segmentation',{});
 global p;
 p = struct('delta_time',[],'gac_weight',[],'propagation_weight',[],'mu',[]);
-p(1).delta_time = 1;
-p(1).propagation_weight = 1e-4;
+p(1).delta_time = 20;
+p(1).propagation_weight = 1e-5;
 p(1).gac_weight = 1;
-p(1).mu = 200;
+p(1).mu = 300;
 
 close all;
 
@@ -19,7 +19,7 @@ addpath('imtool3D');
 
 % set file path by text file
 parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
-dataset = 'p01';
+dataset = 'p06';
 scan = 't1_wk';
 filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
 
@@ -40,10 +40,10 @@ for v =1:5
     % g = ones(size(V)); % linear diffusion
     gradient_field = ac_gradient_map(image,1);
     
-    margin = [8 8 16];
+    margin = [8 8 15];
     % center = size(img);
     % center = round(center/2);
-    center = [32 37 32];
+    center = [32 37 27];
     
     distance_field = initialize_distance_field(size(image), center, margin, 0.5);
     
@@ -51,7 +51,7 @@ for v =1:5
     %gauss_filter = fspecial('gaussian',[10 10],2);
     %distance_field = imfilter(distance_field,gauss_filter,'same');
     
-    result = levelSet( image, distance_field, gradient_field, 7 );
+    s(1).Segmentation{v} = levelSet( image, distance_field, gradient_field, 10 );
     
     % result = cell(size(image,3),1);
     % for i = 1:size(image,3)
@@ -59,10 +59,10 @@ for v =1:5
     % end
     
     figure;
-    slice = [1 4:3:55 length(result)]; %20
+    slice = [1 4:3:55 length(s(1).Segmentation{v})]; %20
     for i = 1:length(slice)
         subplot(4,5,i); imshow(image(:,:,slice(i)),[]); hold on;
-        r = result{slice(i)};
+        r = s(1).Segmentation{v}{slice(i)};
         if ~isempty(r)
             [h, pt] = zy_plot_contours(r,'linewidth',2);
         end
