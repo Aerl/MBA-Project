@@ -89,6 +89,7 @@ if(ischar(directory))
     handles.visData = images;
     handles.visNames = names;
     handles.visSegs = cell(1,size(images,2));
+    handles.visSegsSlices = cell(1,size(images,2)*2);
 
     dssize = size(images{1,1});
 
@@ -148,7 +149,9 @@ slice_num = floor(get(handles.DataSetSlicer,'Value'));
 vertebra_num = get(handles.DataSetPopUp,'Value');
 I = handles.visData{1,vertebra_num}(:,:,slice_num);
 
-if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+handles
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}) && isfield(handles,'visSegsSlices') && slice_num >= handles.visSegsSlices{2*vertebra_num-1} && ~isempty(handles.visSegsSlices{2*vertebra_num}) && slice_num <= handles.visSegsSlices{2*vertebra_num})
     RGB = repmat(I,[1,1,3]); % convert I to an RGB image
     RGB = RGB/max(max(I)); 
     RGB = insertShape(RGB, 'rectangle', handles.visSegs{1,vertebra_num} , 'LineWidth', 1);
@@ -191,9 +194,24 @@ handles = guidata(hObject);
 coordinates = get(get(hObject,'Parent'),'CurrentPoint');
 coordinates = [coordinates(1,1) coordinates(1,2)];
 
-rectangle = getrect(handles.DataSetAxes);
+%rectangle = getrect(handles.DataSetAxes);
 vertebra_num = get(handles.DataSetPopUp,'Value');
-handles.visSegs{1,vertebra_num} = [coordinates rectangle(1:2)-coordinates];
+%
+
+slice_num = floor(get(handles.DataSetSlicer,'Value'));
+if(~isempty(handles.visSegsSlices{2*vertebra_num-1}) && ~isempty(handles.visSegsSlices{2*vertebra_num}) ||  isempty(handles.visSegsSlices{2*vertebra_num-1}) && isempty(handles.visSegsSlices{2*vertebra_num}))
+    handles.visSegsSlices{2*vertebra_num-1} = slice_num;
+    handles.visSegsSlices{2*vertebra_num} = [];
+    handles.visSegs{1,vertebra_num}(1:2) = coordinates;
+else
+    handles.visSegsSlices{2*vertebra_num} = slice_num;
+    handles.visSegs{1,vertebra_num}(3:4)= coordinates-handles.visSegs{1,vertebra_num}(1:2);
+    if(handles.visSegsSlices{2*vertebra_num} < handles.visSegsSlices{2*vertebra_num-1})
+        temp = handles.visSegsSlices{2*vertebra_num-1};
+        handles.visSegsSlices{2*vertebra_num-1} = handles.visSegsSlices{2*vertebra_num};
+        handles.visSegsSlices{2*vertebra_num} = temp;
+    end
+end
 
 % update handles
 guidata(hObject,handles);
