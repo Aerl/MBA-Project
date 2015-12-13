@@ -190,7 +190,8 @@ function SliceImageButtonDownFun(hObject, eventdata)
 
 coordinates = get(get(hObject,'Parent'),'CurrentPoint');
 coordinates = [coordinates(1,1) coordinates(1,2)];
-rectangle = getrect(guidata(hObject));
+handles = guidata(hObject);
+rectangle = getrect(handles.DataSetAxes);
 handles.rectangle = [coordinates rectangle(1:2)-coordinates];
 
 % update handles
