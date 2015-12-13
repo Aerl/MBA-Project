@@ -88,6 +88,7 @@ if(ischar(directory))
 
     handles.visData = images;
     handles.visNames = names;
+    handles.visSegs = cell(1,size(images,2));
 
     dssize = size(images{1,1});
 
@@ -147,10 +148,10 @@ slice_num = floor(get(handles.DataSetSlicer,'Value'));
 vertebra_num = get(handles.DataSetPopUp,'Value');
 I = handles.visData{1,vertebra_num}(:,:,slice_num);
 
-if(isfield(handles,'rectangle'))
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
     RGB = repmat(I,[1,1,3]); % convert I to an RGB image
     RGB = RGB/max(max(I)); 
-    RGB = insertShape(RGB, 'rectangle', [handles.rectangle] , 'LineWidth', 1);
+    RGB = insertShape(RGB, 'rectangle', handles.visSegs{1,vertebra_num} , 'LineWidth', 1);
     imshow(RGB,'Parent',handles.DataSetAxes);
 else
     imshow(I,[],'Parent',handles.DataSetAxes);
@@ -184,15 +185,15 @@ end
 
 % --- Executes on mouse press over axes background.
 function SliceImageButtonDownFun(hObject, eventdata)
-% hObject    handle to DataSetAxes (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+
+handles = guidata(hObject);
 
 coordinates = get(get(hObject,'Parent'),'CurrentPoint');
 coordinates = [coordinates(1,1) coordinates(1,2)];
-handles = guidata(hObject);
+
 rectangle = getrect(handles.DataSetAxes);
-handles.rectangle = [coordinates rectangle(1:2)-coordinates];
+vertebra_num = get(handles.DataSetPopUp,'Value');
+handles.visSegs{1,vertebra_num} = [coordinates rectangle(1:2)-coordinates];
 
 % update handles
 guidata(hObject,handles);
