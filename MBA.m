@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 12-Dec-2015 15:37:03
+% Last Modified by GUIDE v2.5 12-Dec-2015 17:04:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -96,9 +96,7 @@ if(ischar(directory))
     set(handles.DataSetSlicer,'Value',1);
     
     set(handles.DataSetPopUp,'String',names);
-
-    cla(handles.DataSetAxes);
-
+    
     display_dataset(handles);
 
     % Update handles structure
@@ -147,7 +145,18 @@ end
 function display_dataset(handles)
 slice_num = floor(get(handles.DataSetSlicer,'Value'));
 vertebra_num = get(handles.DataSetPopUp,'Value');
-imshow(handles.visData{1,vertebra_num}(:,:,slice_num),[],'Parent',handles.DataSetAxes);
+I = handles.visData{1,vertebra_num}(:,:,slice_num);
+
+if(isfield(handles,'rectangle'))
+    RGB = repmat(I,[1,1,3]); % convert I to an RGB image
+    RGB = RGB/max(max(I)); 
+    RGB = insertShape(RGB, 'rectangle', [handles.rectangle] , 'LineWidth', 1);
+    imshow(RGB,'Parent',handles.DataSetAxes);
+else
+    imshow(I,[],'Parent',handles.DataSetAxes);
+end
+
+set(imhandles(handles.DataSetAxes),'ButtonDownFcn',@SliceImageButtonDownFun);
 
 
 % --- Executes on selection change in DataSetPopUp.
@@ -171,3 +180,20 @@ function DataSetPopUp_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on mouse press over axes background.
+function SliceImageButtonDownFun(hObject, eventdata)
+% hObject    handle to DataSetAxes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+coordinates = get(get(hObject,'Parent'),'CurrentPoint');
+coordinates = [coordinates(1,1) coordinates(1,2)];
+rectangle = getrect(guidata(hObject));
+handles.rectangle = [coordinates rectangle(1:2)-coordinates];
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
