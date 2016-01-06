@@ -1,12 +1,13 @@
 %% structs
 global s;
-s = struct('Images',{},'Names',{}, 'Segmentation',{});
+s = struct('OriginalImages',{},'ResampledImages',{},'Names',{}, 'Segmentation',{});
 global p;
-p = struct('delta_time',[],'gac_weight',[],'propagation_weight',[],'mu',[]);
-p(1).delta_time = 20;
-p(1).propagation_weight = 1e-5;
-p(1).gac_weight = 1;
-p(1).mu = 300;
+p = struct('iterations',[],'delta_time',[],'gac_weight',[],'propagation_weight',[],'mu',[],'resolution',{});
+p(1).iterations = 1;
+p(1).delta_time = 1;
+p(1).propagation_weight = 1e-3;
+p(1).gac_weight = 1 - p(1).propagation_weight;
+p(1).mu = 200;
 
 close all;
 
@@ -28,13 +29,13 @@ filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
 
 % load all images in filepath
 path = getAllFiles(filepath);
-[s(1).Names,s(1).Images] = loadDICOM(path);
+[s(1).Names,s(1).ResampledImages,s(1).OriginalImages] = loadDICOM(path);
 
 for v =1:5
     
     
     % select Vertebra
-    image = s(1).Images{v};
+    image = s(1).ResampledImages{v};
     
     %% Hybrid 3D Levelset
     % g = ones(size(V)); % linear diffusion
@@ -51,17 +52,19 @@ for v =1:5
     %gauss_filter = fspecial('gaussian',[10 10],2);
     %distance_field = imfilter(distance_field,gauss_filter,'same');
     
-    s(1).Segmentation{v} = levelSet( image, distance_field, gradient_field, 10 );
+    s(1).Segmentation{v} = levelSet( image, distance_field, gradient_field, p(1).resolution{v} );
     
     % result = cell(size(image,3),1);
     % for i = 1:size(image,3)
     %     result{i} = contours(distance_field(:,:,i),[0,0]);
     % end
     
+    image = s(1).OriginalImages{v};
+    
     figure;
-    slice = [1 4:3:55 length(s(1).Segmentation{v})]; %20
+    slice = 1:15; %20
     for i = 1:length(slice)
-        subplot(4,5,i); imshow(image(:,:,slice(i)),[]); hold on;
+        subplot(3,5,i); imshow(image(:,:,slice(i)),[]); hold on;
         r = s(1).Segmentation{v}{slice(i)};
         if ~isempty(r)
             [h, pt] = zy_plot_contours(r,'linewidth',2);
