@@ -3,9 +3,9 @@ global s;
 s = struct('OriginalImages',{},'ResampledImages',{},'Names',{}, 'Segmentation',{});
 global p;
 p = struct('iterations',[],'delta_time',[],'gac_weight',[],'propagation_weight',[],'mu',[],'resolution',{});
-p(1).iterations = 1;
-p(1).delta_time = 1;
-p(1).propagation_weight = 1e-3;
+p(1).iterations = 10;
+p(1).delta_time = 0.5;
+p(1).propagation_weight = 5e-3;
 p(1).gac_weight = 1 - p(1).propagation_weight;
 p(1).mu = 200;
 
