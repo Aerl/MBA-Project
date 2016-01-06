@@ -140,28 +140,27 @@ function DataSetSlicer_ContiniousCallback(hObject,eventData)
 % first we need the handles structure which we can get from hObject
 handles = guidata(hObject);
 
-if isfield(handles,'visData')
-    display_dataset(handles);
-end
+
+display_dataset(handles);
 
 function display_dataset(handles)
-slice_num = floor(get(handles.DataSetSlicer,'Value'));
-vertebra_num = get(handles.DataSetPopUp,'Value');
-I = handles.visData{1,vertebra_num}(:,:,slice_num);
 
-handles
+if isfield(handles,'visData')
+    slice_num = floor(get(handles.DataSetSlicer,'Value'));
+    vertebra_num = get(handles.DataSetPopUp,'Value');
+    I = handles.visData{1,vertebra_num}(:,:,slice_num);
 
-if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}) && isfield(handles,'visSegsSlices') && slice_num >= handles.visSegsSlices{2*vertebra_num-1} && ~isempty(handles.visSegsSlices{2*vertebra_num}) && slice_num <= handles.visSegsSlices{2*vertebra_num})
-    RGB = repmat(I,[1,1,3]); % convert I to an RGB image
-    RGB = RGB/max(max(I)); 
-    RGB = insertShape(RGB, 'rectangle', handles.visSegs{1,vertebra_num} , 'LineWidth', 1);
-    imshow(RGB,'Parent',handles.DataSetAxes);
-else
-    imshow(I,[],'Parent',handles.DataSetAxes);
+    if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}) && isfield(handles,'visSegsSlices') && slice_num >= handles.visSegsSlices{2*vertebra_num-1} && ~isempty(handles.visSegsSlices{2*vertebra_num}) && slice_num <= handles.visSegsSlices{2*vertebra_num})
+        RGB = repmat(I,[1,1,3]); % convert I to an RGB image
+        RGB = RGB/max(max(I)); 
+        RGB = insertShape(RGB, 'rectangle', handles.visSegs{1,vertebra_num} , 'LineWidth', 1);
+        imshow(RGB,'Parent',handles.DataSetAxes);
+    else
+        imshow(I,[],'Parent',handles.DataSetAxes);
+    end
+
+    set(imhandles(handles.DataSetAxes),'ButtonDownFcn',@SliceImageButtonDownFun);
 end
-
-set(imhandles(handles.DataSetAxes),'ButtonDownFcn',@SliceImageButtonDownFun);
-
 
 % --- Executes on selection change in DataSetPopUp.
 function DataSetPopUp_Callback(hObject, eventdata, handles)
