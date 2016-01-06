@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 12-Dec-2015 17:04:59
+% Last Modified by GUIDE v2.5 06-Jan-2016 14:08:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -147,7 +147,7 @@ display_dataset(handles);
 function display_dataset(handles)
 
 if isfield(handles,'visData')
-    slice_num = floor(get(handles.DataSetSlicer,'Value'));
+    slice_num = floor(get(handles.DataSetSlicer,'Value'));    
     vertebra_num = get(handles.DataSetPopUp,'Value');
     I = handles.visData{1,vertebra_num}(:,:,slice_num)/handles.maxIntensities{1,vertebra_num};
 
@@ -160,6 +160,39 @@ if isfield(handles,'visData')
     end
 
     set(imhandles(handles.DataSetAxes),'ButtonDownFcn',@SliceImageButtonDownFun);
+    
+    % build info text
+    infoString = '';
+    infoString = strcat(infoString,sprintf('Vertebrae: %d',vertebra_num));
+    infoString = strcat(infoString,sprintf('\nSlice: %d',slice_num));
+    
+    % display info text
+    set(handles.InfoDisplay,'String',infoString);
+    
+    %build segmentation info string
+    dispString = '';
+    if(isfield(handles,'visSegsSlices') && isfield(handles,'visSegs'))
+        rect = handles.visSegs{1,vertebra_num};
+        dispString = strcat(dispString,sprintf('Point1:'));
+        if(~isempty(rect))
+        dispString = strcat(dispString,sprintf('\n\tx: %f',rect(1)));
+        dispString = strcat(dispString,sprintf('\n\ty: %f',rect(2)));
+        else
+        dispString = strcat(dispString,sprintf('\n\tx:'));
+        dispString = strcat(dispString,sprintf('\n\ty:'));    
+        end
+        dispString = strcat(dispString,sprintf('\nPoint2:'));
+        if(length(rect) > 2)
+        dispString = strcat(dispString,sprintf('\n\tx: %f',rect(3)));
+        dispString = strcat(dispString,sprintf('\n\ty: %f',rect(4)));
+        else
+        dispString = strcat(dispString,sprintf('\n\tx:'));
+        dispString = strcat(dispString,sprintf('\n\ty:'));    
+        end
+    end
+    
+    % display segmentation sinfo text
+    set(handles.sliceDisplay,'String',dispString);
 end
 
 % --- Executes on selection change in DataSetPopUp.
@@ -201,6 +234,7 @@ slice_num = floor(get(handles.DataSetSlicer,'Value'));
 if(~isempty(handles.visSegsSlices{2*vertebra_num-1}) && ~isempty(handles.visSegsSlices{2*vertebra_num}) ||  isempty(handles.visSegsSlices{2*vertebra_num-1}) && isempty(handles.visSegsSlices{2*vertebra_num}))
     handles.visSegsSlices{2*vertebra_num-1} = slice_num;
     handles.visSegsSlices{2*vertebra_num} = [];
+    handles.visSegs{1,vertebra_num} = zeros(1,2);
     handles.visSegs{1,vertebra_num}(1:2) = coordinates;
 else
     handles.visSegsSlices{2*vertebra_num} = slice_num;
@@ -216,3 +250,21 @@ end
 guidata(hObject,handles);
 
 display_dataset(handles);
+
+
+% --- Executes on button press in resetSegButton.
+function resetSegButton_Callback(hObject, eventdata, handles)
+% hObject    handle to resetSegButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+if(isfield(handles,'visSegs'))
+    vertebra_num = get(handles.DataSetPopUp,'Value');
+    handles.visSegs{1,vertebra_num} = [];
+    handles.visSegsSlices{2*vertebra_num-1} = [];
+    handles.visSegsSlices{2*vertebra_num} = [];
+    
+    guidata(hObject,handles);
+    
+    display_dataset(handles);
+end
