@@ -90,6 +90,7 @@ if(ischar(directory))
     handles.visNames = names;
     handles.visSegs = cell(1,size(images,2));
     handles.visSegsSlices = cell(1,size(images,2)*2);
+    handles.maxIntensities = cellfun(@(x) max(max(max(x))), images,'UniformOutput',false);
 
     dssize = size(images{1,1});
 
@@ -148,15 +149,14 @@ function display_dataset(handles)
 if isfield(handles,'visData')
     slice_num = floor(get(handles.DataSetSlicer,'Value'));
     vertebra_num = get(handles.DataSetPopUp,'Value');
-    I = handles.visData{1,vertebra_num}(:,:,slice_num);
+    I = handles.visData{1,vertebra_num}(:,:,slice_num)/handles.maxIntensities{1,vertebra_num};
 
     if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}) && isfield(handles,'visSegsSlices') && slice_num >= handles.visSegsSlices{2*vertebra_num-1} && ~isempty(handles.visSegsSlices{2*vertebra_num}) && slice_num <= handles.visSegsSlices{2*vertebra_num})
-        RGB = repmat(I,[1,1,3]); % convert I to an RGB image
-        RGB = RGB/max(max(I)); 
+        RGB = repmat(I,[1,1,3]); % convert I to an RGB image 
         RGB = insertShape(RGB, 'rectangle', handles.visSegs{1,vertebra_num} , 'LineWidth', 1);
         imshow(RGB,'Parent',handles.DataSetAxes);
     else
-        imshow(I,[],'Parent',handles.DataSetAxes);
+        imshow(I,[0.0 1.0],'Parent',handles.DataSetAxes);
     end
 
     set(imhandles(handles.DataSetAxes),'ButtonDownFcn',@SliceImageButtonDownFun);
