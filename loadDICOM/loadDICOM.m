@@ -1,11 +1,13 @@
-function [names,images] = loadDICOM(path_name)
+function [names,resampledImages,originalImages] = loadDICOM(path_name)
+global p;
 
 s = size(path_name);
 numberOfImages = s(1);
 names = {};
 vertebra = 1;
 lastV = '';
-images = {};
+resampledImages = {};
+originalImages = {};
 image3d = [];
 index = 1;
 
@@ -14,7 +16,6 @@ for j = 1:numberOfImages
     currentV = dcm.Filename(1:end-10);
     data = dicomread(dcm);
     
-    data(:,:) = fliplr(data(:,:));
     if (j > 1 && ~strcmp(lastV,currentV))
         save3DImage(image3d);
         clear image3d;
@@ -33,9 +34,11 @@ end
 save3DImage(image3d);
 
 function [] = save3DImage(image3d)
+        p(1).resolution{vertebra} = [pixDim(1), pixDim(2), dcm.SpacingBetweenSlices];
         image3d = double(image3d);
+        originalImages{vertebra} = image3d;
         image3d = anisoToIsotropic(image3d, pixDim(1), pixDim(2), dcm.SpacingBetweenSlices);
-        images{vertebra} = image3d;
+        resampledImages{vertebra} = image3d;
         names = [names lastV(end-1:end)];
 end
 
