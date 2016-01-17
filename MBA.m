@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 06-Jan-2016 14:08:20
+% Last Modified by GUIDE v2.5 17-Jan-2016 16:32:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -268,3 +268,10 @@ if(isfield(handles,'visSegs'))
     
     display_dataset(handles);
 end
+
+
+% --- Executes on button press in startSegmButton.
+function startSegmButton_Callback(hObject, eventdata, handles)
+% hObject    handle to startSegmButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
