@@ -15,7 +15,7 @@ p(1).smoothDistanceFieldIsOn = 0;
 p(1).gaussSize = [10 10];
 p(1).gaussSigma = 8;
 
-%close all;
+close all;
 
 % add subfolders
 addpath('loadDICOM');
@@ -38,7 +38,7 @@ path = getAllFiles(filepath);
 [s(1).Names,s(1).ResampledImages,s(1).OriginalImages] = loadDICOM(path);
 
 %% Segmentation of all vertebrae
-for v =1:5
+for v = 1:5
     
     % select Vertebra
     if (p(1).subsamplingIsOn)
@@ -56,7 +56,7 @@ for v =1:5
     margin(3) = margin(3) * 2;
     margin = round(margin);
     center = center/2;
-    center(1:2) = center(1:2)*1.1;
+    center(1:2) = center(1:2)*1;
     center = round(center);
     
     %initialize distance field
@@ -84,7 +84,7 @@ for v =1:5
     
     % recalculate center of anisotropic data
     if (p(1).subsamplingIsOn)
-        center = size(image);
+        center = size(originalImage);
         center = center/2;
         center(1:2) = center(1:2)*1.1;
         center = round(center);
@@ -101,36 +101,36 @@ for v =1:5
         subplot(3,5,i); imshow(binaryResult(:,:,slice(i)),[]);
     end
     
-    % load ground truth images
-    filepath = strcat(parentpath,'\','Data_Segmentation');
-    filter = strcat(dataset,'_seg_l',num2str(v),'*.png');
-    groundTruthFiles = dir(fullfile(filepath,filter));
-    groundTruthFiles = {groundTruthFiles.name};
-
-    groundTruthImages = cell(numel(groundTruthFiles),1);
-    groundTruthNames = cell(numel(groundTruthFiles),1);
-    for i = 1:numel(groundTruthFiles)
-        groundTruthNames{i} = fullfile(filepath,groundTruthFiles{i});
-        groundTruthImages{i} = imread(groundTruthNames{i});
-    end
-    
-    % calculate jaccard index for each vertebra
-    sumInter = 0;
-    sumUnion = 0;
-    figure;
-    for i = 1:length(slice)
-        groundTruth = imresize(groundTruthImages{i},size(binaryResult(:,:,slice(i))));
-        nInter = nnz(groundTruth.*binaryResult(:,:,slice(i)));
-        nUnion = nnz(groundTruth+binaryResult(:,:,slice(i)));
-        sumInter = sumInter + nInter;
-        sumUnion = sumUnion + nUnion;
-        subplot(3,5,i); imshow(groundTruthImages{i},[]);
-    end
-    
-    jaccardIndex = sumInter / sumUnion;
-    disp('');
-    disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(v) ,':'));
-    disp(jaccardIndex);
+%     % load ground truth images
+%     filepath = strcat(parentpath,'\','Data_Segmentation');
+%     filter = strcat(dataset,'_seg_l',num2str(v),'*.png');
+%     groundTruthFiles = dir(fullfile(filepath,filter));
+%     groundTruthFiles = {groundTruthFiles.name};
+% 
+%     groundTruthImages = cell(numel(groundTruthFiles),1);
+%     groundTruthNames = cell(numel(groundTruthFiles),1);
+%     for i = 1:numel(groundTruthFiles)
+%         groundTruthNames{i} = fullfile(filepath,groundTruthFiles{i});
+%         groundTruthImages{i} = imread(groundTruthNames{i});
+%     end
+%     
+%     % calculate jaccard index for each vertebra
+%     sumInter = 0;
+%     sumUnion = 0;
+%     figure;
+%     for i = 1:length(slice)
+%         groundTruth = imresize(groundTruthImages{i},size(binaryResult(:,:,slice(i))));
+%         nInter = nnz(groundTruth.*binaryResult(:,:,slice(i)));
+%         nUnion = nnz(groundTruth+binaryResult(:,:,slice(i)));
+%         sumInter = sumInter + nInter;
+%         sumUnion = sumUnion + nUnion;
+%         subplot(3,5,i); imshow(groundTruthImages{i},[]);
+%     end
+%     
+%     jaccardIndex = sumInter / sumUnion;
+%     disp('');
+%     disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(v) ,':'));
+%     disp(jaccardIndex);
     
 end
 

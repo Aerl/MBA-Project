@@ -16,7 +16,6 @@ for j = 1:numberOfImages
     currentV = dcm.Filename(1:end-10);
     data = dicomread(dcm);
     
-    data(:,:) = fliplr(data(:,:));
     if (j > 1 && ~strcmp(lastV,currentV))
         save3DImage(image3d);
         clear image3d;
