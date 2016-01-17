@@ -8,7 +8,7 @@ p(1).delta_time = 0.5;
 p(1).propagation_weight = 5e-3;
 p(1).gac_weight = 1 - p(1).propagation_weight;
 p(1).mu = 200;
-p(1).subsamplingIsOn = 0;
+p(1).subsamplingIsOn = 1;
 
 close all;
 
@@ -21,7 +21,7 @@ addpath('imtool3D');
 
 % set file path by text file
 parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
-dataset = 'p06';
+dataset = 'p03';
 scan = 't1_wk';
 filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
 
@@ -89,11 +89,42 @@ for v =1:5
     labelOfVertebra = l(center(1),center(2),center(3));
     binaryResult = (l==labelOfVertebra);
     
-    % show binary verterbra segmentation
+    % show binary vertebra segmentation
     figure;
     for i = 1:length(slice)
         subplot(3,5,i); imshow(binaryResult(:,:,slice(i)),[]);
     end
+    
+    % load ground truth images
+    filepath = strcat(parentpath,'\','Data_Segmentation');
+    filter = strcat(dataset,'_seg_l',num2str(v),'*.png');
+    groundTruthFiles = dir(fullfile(filepath,filter));
+    groundTruthFiles = {groundTruthFiles.name};
+
+    groundTruthImages = cell(numel(groundTruthFiles),1);
+    groundTruthNames = cell(numel(groundTruthFiles),1);
+    for i = 1:numel(groundTruthFiles)
+        groundTruthNames{i} = fullfile(filepath,groundTruthFiles{i});
+        groundTruthImages{i} = imread(groundTruthNames{i});
+    end
+    
+    % calculate jaccard index for each vertebra
+    sumInter = 0;
+    sumUnion = 0;
+    figure;
+    for i = 1:length(slice)
+        groundTruth = imresize(groundTruthImages{i},size(binaryResult(:,:,slice(i))));
+        nInter = nnz(groundTruth.*binaryResult(:,:,slice(i)));
+        nUnion = nnz(groundTruth+binaryResult(:,:,slice(i)));
+        sumInter = sumInter + nInter;
+        sumUnion = sumUnion + nUnion;
+        subplot(3,5,i); imshow(groundTruthImages{i},[]);
+    end
+    
+    jaccardIndex = sumInter / sumUnion;
+    disp('');
+    disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(v) ,':'));
+    disp(jaccardIndex);
     
 end
 
