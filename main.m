@@ -72,15 +72,6 @@ for v = 1:5
     
     % show segmentation
     originalImage = s(1).OriginalImages{v};
-    figure;
-    slice = 1:15;
-    for i = 1:length(slice)
-        subplot(3,5,i); imshow(originalImage(:,:,slice(i)),[]); hold on;
-        r = s(1).Segmentation{v}{slice(i)};
-        if ~isempty(r)
-            [h, pt] = zy_plot_contours(r,'linewidth',2);
-        end
-    end
     
     % recalculate center of anisotropic data
     if (p(1).subsamplingIsOn)
@@ -96,41 +87,68 @@ for v = 1:5
     binaryResult = (l==labelOfVertebra);
     
     % show binary vertebra segmentation
-    figure;
-    for i = 1:length(slice)
-        subplot(3,5,i); imshow(binaryResult(:,:,slice(i)),[]);
+%     figure;
+%     slice = 1:15;
+%     for i = 1:length(slice)
+%         subplot(3,5,i); 
+%         imshow(originalImage(:,:,slice(i)),[]);
+%         sizeIMG = size(originalImage(:,:,slice(i)));
+%         green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
+%         hold on;
+%         h = imshow(green);
+%         hold off;
+%         set(h, 'AlphaData',0.3* binaryResult(:,:,slice(i)))
+%     end
+    
+    % load ground truth images
+    filepath = strcat(parentpath,'\','Data_Segmentation');
+    filter = strcat(dataset,'_seg_l',num2str(v),'*.png');
+    groundTruthFiles = dir(fullfile(filepath,filter));
+    groundTruthFiles = {groundTruthFiles.name};
+
+    groundTruthImages = cell(numel(groundTruthFiles),1);
+    groundTruthNames = cell(numel(groundTruthFiles),1);
+    for i = 1:numel(groundTruthFiles)
+        groundTruthNames{i} = fullfile(filepath,groundTruthFiles{i});
+        groundTruthImages{i} = imread(groundTruthNames{i});
     end
     
-%     % load ground truth images
-%     filepath = strcat(parentpath,'\','Data_Segmentation');
-%     filter = strcat(dataset,'_seg_l',num2str(v),'*.png');
-%     groundTruthFiles = dir(fullfile(filepath,filter));
-%     groundTruthFiles = {groundTruthFiles.name};
-% 
-%     groundTruthImages = cell(numel(groundTruthFiles),1);
-%     groundTruthNames = cell(numel(groundTruthFiles),1);
-%     for i = 1:numel(groundTruthFiles)
-%         groundTruthNames{i} = fullfile(filepath,groundTruthFiles{i});
-%         groundTruthImages{i} = imread(groundTruthNames{i});
-%     end
-%     
-%     % calculate jaccard index for each vertebra
-%     sumInter = 0;
-%     sumUnion = 0;
-%     figure;
-%     for i = 1:length(slice)
-%         groundTruth = imresize(groundTruthImages{i},size(binaryResult(:,:,slice(i))));
-%         nInter = nnz(groundTruth.*binaryResult(:,:,slice(i)));
-%         nUnion = nnz(groundTruth+binaryResult(:,:,slice(i)));
-%         sumInter = sumInter + nInter;
-%         sumUnion = sumUnion + nUnion;
-%         subplot(3,5,i); imshow(groundTruthImages{i},[]);
-%     end
-%     
-%     jaccardIndex = sumInter / sumUnion;
-%     disp('');
-%     disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(v) ,':'));
-%     disp(jaccardIndex);
+    % calculate jaccard index for each vertebra
+    sumInter = 0;
+    sumUnion = 0;
+    slice = 1:15;
+    for i = 1:length(slice)
+        groundTruth = imresize(groundTruthImages{i},size(binaryResult(:,:,slice(i))));
+        nInter = nnz(groundTruth.*binaryResult(:,:,slice(i)));
+        nUnion = nnz(groundTruth+binaryResult(:,:,slice(i)));
+        sumInter = sumInter + nInter;
+        sumUnion = sumUnion + nUnion;
+        %subplot(3,5,i); imshow(groundTruthImages{i},[]);
+    end
+    
+    %plot everything
+    figure;
+    sizeIMG = size(originalImage(:,:,slice(1)));
+    slice = 1:15;
+    for i = 1:length(slice)
+        groundTruth = imresize(groundTruthImages{i},sizeIMG);
+        subplot(3,5,i); 
+        imshow(originalImage(:,:,slice(i)),[]);
+        green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
+        red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
+        hold on;
+        hg = imshow(green);
+        hr = imshow(red);
+        hold off;
+        set(hr, 'AlphaData',0.3* binaryResult(:,:,slice(i)))
+        set(hg, 'AlphaData',0.3* groundTruth)
+    end
+    
+    
+    jaccardIndex = sumInter / sumUnion;
+    disp('');
+    disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(v) ,':'));
+    disp(jaccardIndex);
     
 end
 
