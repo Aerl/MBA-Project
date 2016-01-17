@@ -1,4 +1,4 @@
-function [ result ] = levelSet( image, distance_field, gradient_field, resolution )
+function [ result, binary ] = levelSet( image, distance_field, gradient_field, resolution )
 global p;
 
 for i = 1:p(1).iterations
@@ -6,6 +6,7 @@ for i = 1:p(1).iterations
         p(1).gac_weight, gradient_field, p(1).delta_time, 1);
 end
     distance_field = isoToAnisotropic(distance_field,resolution(1),resolution(2),resolution(3));
+    binary = (distance_field>0);
     
     numer_of_slices = size(distance_field,3);
     result = cell(numer_of_slices,1);
