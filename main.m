@@ -5,8 +5,8 @@ global p;
 p = struct('iterations',[],'delta_time',[],'gac_weight',[],'propagation_weight',...
     [],'mu',[],'resolution',{}, 'subsamplingIsOn',[], 'smoothDistanceFieldIsOn',[],...
     'gaussSize',[],'gaussSigma',[]);
-p(1).iterations = 20;
-p(1).delta_time = 0.5;
+p(1).iterations = 40;
+p(1).delta_time = 1;
 p(1).propagation_weight = 1e-6;
 p(1).gac_weight = 1 - p(1).propagation_weight;
 p(1).mu = 300;
@@ -26,7 +26,7 @@ addpath('imtool3D');
 
 % set file path by text file
 parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
-dataset = 'p03';
+dataset = 'p09';
 scan = 't1_wk';
 filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
 
@@ -53,7 +53,7 @@ for v = 1:5
     % set center and margin depending on image size
     center = size(image);
     margin = center * 0.08;
-    margin(3) = margin(3) * 2;
+    margin(3) = margin(3) * 1.5;
     margin = round(margin);
     center = center/2;
     center(1:2) = center(1:2)*1;
