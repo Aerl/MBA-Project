@@ -19,8 +19,7 @@ for i = 1:p(1).iterations
     mean_diff = mean(mean(mean(diff_field)));
     min_diff = min(min(min(diff_field)));
     
-    if (diff < 400)
-        x = 3;
+    if (diff < p(1).convergenceThreshold)
         disp('Iterations: ');
         disp(i);
         break
