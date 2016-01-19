@@ -23,10 +23,16 @@ addpath('AOSLevelsetSegmentationToolboxM');
 addpath('imtool3D');
 
 %% Load Image (just for image data not for segmentation)
+formatOut = 'dd.mm.yyyy-HH.MM.SS';
 
+tic
+
+for patient = 1:9
+    %% Load Image
 % set file path by text file
 parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
 dataset = 'p09';
+    disp(dataset);
 scan = 't1_wk';
 filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
 
@@ -37,19 +43,21 @@ filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
 path = getAllFiles(filepath);
 [s(1).Names,s(1).ResampledImages,s(1).OriginalImages] = loadDICOM(path);
 
+    for vertebra = 1:5
 %% Segmentation of all vertebrae
-for v = 1:5
-    
+        disp(strcat('-v',num2str(vertebra)));
+        [s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra});
+
     % select Vertebra
     if (p(1).subsamplingIsOn)
         image = s(1).ResampledImages{v};
     else
         image = s(1).OriginalImages{v};
     end
-    
+
     % compute gradient field
     gradient_field = ac_gradient_map(image,1);
-    
+
     % set center and margin depending on image size
     center = size(image);
     margin = center * 0.08;
@@ -58,7 +66,7 @@ for v = 1:5
     center = center/2;
     center(1:2) = center(1:2)*1;
     center = round(center);
-    
+
     %initialize distance field
     distance_field = initialize_distance_field(size(image), center, margin, 0.5);
     % smooth Initialization
@@ -66,13 +74,13 @@ for v = 1:5
         gauss_filter = fspecial('gaussian',p(1).gaussSize,p(1).gaussSigma);  % size = [5 5] and sigma = 2
         distance_field = imfilter(distance_field,gauss_filter,'same');
     end
-    
+
     % segment vertebra using hybrid level set
     [s(1).Segmentation{v}, s(1).BinarySegmentation{v}] = levelSet( image, distance_field, gradient_field, p(1).resolution{v} );
-    
+
     % show segmentation
     originalImage = s(1).OriginalImages{v};
-    
+
     % recalculate center of anisotropic data
     if (p(1).subsamplingIsOn)
         center = size(originalImage);
@@ -80,17 +88,17 @@ for v = 1:5
         center(1:2) = center(1:2)*1.1;
         center = round(center);
     end
-    
+
     % connected component analysis
     l = bwlabeln(s(1).BinarySegmentation{v});
     labelOfVertebra = l(center(1),center(2),center(3));
     binaryResult = (l==labelOfVertebra);
-    
+
     % show binary vertebra segmentation
 %     figure;
 %     slice = 1:15;
 %     for i = 1:length(slice)
-%         subplot(3,5,i); 
+%         subplot(3,5,i);
 %         imshow(originalImage(:,:,slice(i)),[]);
 %         sizeIMG = size(originalImage(:,:,slice(i)));
 %         green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
@@ -99,7 +107,7 @@ for v = 1:5
 %         hold off;
 %         set(h, 'AlphaData',0.3* binaryResult(:,:,slice(i)))
 %     end
-    
+
     % load ground truth images
     filepath = strcat(parentpath,'\','Data_Segmentation');
     filter = strcat(dataset,'_seg_l',num2str(v),'*.png');
@@ -113,13 +121,31 @@ for v = 1:5
         groundTruthImages{i} = imread(groundTruthNames{i});
     end
 
+        % calculate jaccard index for each vertebra
+        sumInter = 0;
+        sumUnion = 0;
+        slice = 1:15;
+        for i = 1:length(slice)
+            groundTruth = imresize(groundTruthImages{i},size(s(1).BinarySegmentation{vertebra}(:,:,slice(i))));
+            nInter = nnz(groundTruth.*s(1).BinarySegmentation{vertebra}(:,:,slice(i)));
+            nUnion = nnz(groundTruth+s(1).BinarySegmentation{vertebra}(:,:,slice(i)));
+            sumInter = sumInter + nInter;
+            sumUnion = sumUnion + nUnion;
+            %subplot(3,5,i); imshow(groundTruthImages{i},[]);
+        end
+        jaccardIndex = sumInter / sumUnion;
+%         disp('');
+%         disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
+%         disp(jaccardIndex);
+        ResultJaccard(patient+1,vertebra+1) = jaccardIndex;
+        
     %plot everything
     figure;
     slice = 1:15;
     sizeIMG = size(originalImage(:,:,slice(1)));
     for i = 1:length(slice)
         groundTruth = imresize(groundTruthImages{i},sizeIMG);
-        subplot(3,5,i); 
+        subplot(3,5,i);
         imshow(originalImage(:,:,slice(i)),[]);
         green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
         red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
@@ -130,7 +156,7 @@ for v = 1:5
         set(hr, 'AlphaData',0.3* binaryResult(:,:,slice(i)))
         set(hg, 'AlphaData',0.3* groundTruth)
     end
-    
+
     % calculate jaccard and dice index
     [jaccardIndex, diceIndex] = similarity(binaryResult,groundTruthImages,sizeIMG);
     disp('');
@@ -138,8 +164,16 @@ for v = 1:5
     disp(jaccardIndex);
     disp(strcat('Dice Index of ',dataset,' Vertebra #',num2str(v) ,':'));
     disp(diceIndex);
-    
+
 end
+
+
+toc
+
+filename = strcat('Jaccard-Subsampling(',num2str(p(1).subsamplingIsOn),...
+    ')-Smoothing(',num2str(p(1).smoothDistanceFieldIsOn),')-',...
+    datestr(clock, formatOut),'.mat');
+save(filename,'ResultJaccard');
 
 % clear workspace
 clear all;

@@ -21,8 +21,8 @@ for i = 1:p(1).iterations
     
     if (diff < 400)
         x = 3;
-        disp('Iterations: ');
-        disp(i);
+%         disp('Iterations: ');
+%         disp(i);
         break
     end
     
