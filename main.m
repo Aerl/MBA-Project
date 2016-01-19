@@ -112,24 +112,11 @@ for v = 1:5
         groundTruthNames{i} = fullfile(filepath,groundTruthFiles{i});
         groundTruthImages{i} = imread(groundTruthNames{i});
     end
-    
-    % calculate jaccard index for each vertebra
-    sumInter = 0;
-    sumUnion = 0;
-    slice = 1:15;
-    for i = 1:length(slice)
-        groundTruth = imresize(groundTruthImages{i},size(binaryResult(:,:,slice(i))));
-        nInter = nnz(groundTruth.*binaryResult(:,:,slice(i)));
-        nUnion = nnz(groundTruth+binaryResult(:,:,slice(i)));
-        sumInter = sumInter + nInter;
-        sumUnion = sumUnion + nUnion;
-        %subplot(3,5,i); imshow(groundTruthImages{i},[]);
-    end
-    
+
     %plot everything
     figure;
-    sizeIMG = size(originalImage(:,:,slice(1)));
     slice = 1:15;
+    sizeIMG = size(originalImage(:,:,slice(1)));
     for i = 1:length(slice)
         groundTruth = imresize(groundTruthImages{i},sizeIMG);
         subplot(3,5,i); 
@@ -144,11 +131,13 @@ for v = 1:5
         set(hg, 'AlphaData',0.3* groundTruth)
     end
     
-    
-    jaccardIndex = sumInter / sumUnion;
+    % calculate jaccard and dice index
+    [jaccardIndex, diceIndex] = similarity(binaryResult,groundTruthImages,sizeIMG);
     disp('');
     disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(v) ,':'));
     disp(jaccardIndex);
+    disp(strcat('Dice Index of ',dataset,' Vertebra #',num2str(v) ,':'));
+    disp(diceIndex);
     
 end
 
