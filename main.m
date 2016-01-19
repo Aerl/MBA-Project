@@ -30,8 +30,7 @@ ResultJaccard(:,1) = 0:9;
 ResultJaccard(1,:) = 0:5;
 
 for patient = 1:9
-    
-%% Load Image (just for image data not for segmentation)    
+    %% Load Image
     % set file path by text file
     parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
     dataset = strcat('p0',num2str(patient));
@@ -45,57 +44,14 @@ for patient = 1:9
     path = getAllFiles(filepath);
     [s(1).Names,s(1).ResampledImages,s(1).OriginalImages] = loadDICOM(path);
     
-    %% Segmentation of all vertebrae
-    for v = 1:5
-        
-        % select Vertebra
-        if (p(1).subsamplingIsOn)
-            image = s(1).ResampledImages{v};
-        else
-            image = s(1).OriginalImages{v};
-        end
-        
-        % compute gradient field
-        gradient_field = ac_gradient_map(image,1);
-        
-        % set center and margin depending on image size
-        center = size(image);
-        margin = center * 0.08;
-        margin(3) = margin(3) * 1.5;
-        margin = round(margin);
-        center = center/2;
-        center(1:2) = center(1:2)*1;
-        center = round(center);
-        
-        %initialize distance field
-        distance_field = initialize_distance_field(size(image), center, margin, 0.5);
-        % smooth Initialization
-        if (p(1).smoothDistanceFieldIsOn)
-            gauss_filter = fspecial('gaussian',p(1).gaussSize,p(1).gaussSigma);  % size = [5 5] and sigma = 2
-            distance_field = imfilter(distance_field,gauss_filter,'same');
-        end
-        
-        % segment vertebra using hybrid level set
-        [s(1).Segmentation{v}, s(1).BinarySegmentation{v}] = levelSet( image, distance_field, gradient_field, p(1).resolution{v} );
-        
-        originalImage = s(1).OriginalImages{v};
-        
-        % recalculate center of anisotropic data
-        if (p(1).subsamplingIsOn)
-            center = size(originalImage);
-            center = center/2;
-            center(1:2) = center(1:2)*1.1;
-            center = round(center);
-        end
-        
-        % connected component analysis
-        l = bwlabeln(s(1).BinarySegmentation{v});
-        labelOfVertebra = l(center(1),center(2),center(3));
-        binaryResult = (l==labelOfVertebra);
-        
+    
+    for vertebra = 1:5
+        %% Segmentation of all vertebrae
+        [s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra});
+
         % load ground truth images
         filepath = strcat(parentpath,'\','Data_Segmentation');
-        filter = strcat(dataset,'_seg_l',num2str(v),'*.png');
+        filter = strcat(dataset,'_seg_l',num2str(vertebra),'*.png');
         groundTruthFiles = dir(fullfile(filepath,filter));
         groundTruthFiles = {groundTruthFiles.name};
         groundTruthImages = cell(numel(groundTruthFiles),1);
@@ -110,35 +66,35 @@ for patient = 1:9
         sumUnion = 0;
         slice = 1:15;
         for i = 1:length(slice)
-            groundTruth = imresize(groundTruthImages{i},size(binaryResult(:,:,slice(i))));
-            nInter = nnz(groundTruth.*binaryResult(:,:,slice(i)));
-            nUnion = nnz(groundTruth+binaryResult(:,:,slice(i)));
+            groundTruth = imresize(groundTruthImages{i},size(s(1).BinarySegmentation{vertebra}(:,:,slice(i))));
+            nInter = nnz(groundTruth.*s(1).BinarySegmentation{vertebra}(:,:,slice(i)));
+            nUnion = nnz(groundTruth+s(1).BinarySegmentation{vertebra}(:,:,slice(i)));
             sumInter = sumInter + nInter;
             sumUnion = sumUnion + nUnion;
             %subplot(3,5,i); imshow(groundTruthImages{i},[]);
         end
         jaccardIndex = sumInter / sumUnion;
         disp('');
-        disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(v) ,':'));
+        disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
         disp(jaccardIndex);
-        ResultJaccard(patient+1,v+1) = jaccardIndex;
+        ResultJaccard(patient+1,vertebra+1) = jaccardIndex;
         
         %plot everything
-        title = strcat(dataset,' - Vertebra  ',num2str(v),' - Jaccard: ',num2str(jaccardIndex));
+        title = strcat(dataset,' - Vertebra  ',num2str(vertebra),' - Jaccard: ',num2str(jaccardIndex));
         figure('name',title,'numbertitle','off');
-        sizeIMG = size(originalImage(:,:,slice(1)));
+        sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,slice(1)));
         slice = 1:15;
         for i = 1:length(slice)
             groundTruth = imresize(groundTruthImages{i},sizeIMG);
             subplot(3,5,i);
-            imshow(originalImage(:,:,slice(i)),[]);
+            imshow(s(1).OriginalImages{vertebra}(:,:,slice(i)),[]);
             green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
             red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
             hold on;
             hg = imshow(green);
             hr = imshow(red);
             hold off;
-            set(hr, 'AlphaData',0.3* binaryResult(:,:,slice(i)))
+            set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,slice(i)))
             set(hg, 'AlphaData',0.3* groundTruth)
         end
     end
