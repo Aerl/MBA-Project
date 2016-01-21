@@ -167,7 +167,7 @@ if isfield(handles,'visData')
     infoString = strcat(infoString,sprintf('\nSlice: %d',slice_num));
     
     % display info text
-    set(handles.InfoDisplay,'String',infoString);
+    set(handles.InfoDisplay,'String',infoString);    
     
     %build segmentation info string
     dispString = '';
@@ -175,19 +175,23 @@ if isfield(handles,'visData')
         rect = handles.visSegs{1,vertebra_num};
         dispString = strcat(dispString,sprintf('Point1:'));
         if(~isempty(rect))
-        dispString = strcat(dispString,sprintf('\n\tx: %f',rect(1)));
-        dispString = strcat(dispString,sprintf('\n\ty: %f',rect(2)));
+        dispString = strcat(dispString,sprintf('\n\tx: %.2f',rect(1)));
+        dispString = strcat(dispString,sprintf('\n\ty: %.2f',rect(2)));
+        dispString = strcat(dispString,sprintf('\n\tslice: %d',handles.visSegsSlices{2*vertebra_num-1}));        
         else
         dispString = strcat(dispString,sprintf('\n\tx:'));
-        dispString = strcat(dispString,sprintf('\n\ty:'));    
+        dispString = strcat(dispString,sprintf('\n\ty:'));
+        dispString = strcat(dispString,sprintf('\n\tslice:'));               
         end
         dispString = strcat(dispString,sprintf('\nPoint2:'));
         if(length(rect) > 2)
-        dispString = strcat(dispString,sprintf('\n\tx: %f',rect(3)));
-        dispString = strcat(dispString,sprintf('\n\ty: %f',rect(4)));
+        dispString = strcat(dispString,sprintf('\n\tx: %.2f',rect(3)));
+        dispString = strcat(dispString,sprintf('\n\ty: %.2f',rect(4)));
+        dispString = strcat(dispString,sprintf('\n\tslice: %d',handles.visSegsSlices{2*vertebra_num}));                
         else
         dispString = strcat(dispString,sprintf('\n\tx:'));
         dispString = strcat(dispString,sprintf('\n\ty:'));    
+        dispString = strcat(dispString,sprintf('\n\tslice:')); 
         end
     end
     
