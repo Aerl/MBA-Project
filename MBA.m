@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 17-Jan-2016 16:32:21
+% Last Modified by GUIDE v2.5 21-Jan-2016 19:27:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -146,6 +146,8 @@ display_dataset(handles);
 
 function display_dataset(handles)
 
+handles
+
 if isfield(handles,'visData')
     slice_num = floor(get(handles.DataSetSlicer,'Value'));    
     vertebra_num = get(handles.DataSetPopUp,'Value');
@@ -170,33 +172,28 @@ if isfield(handles,'visData')
     set(handles.InfoDisplay,'String',infoString);    
     
     %build segmentation info string
-    dispString = '';
     if(isfield(handles,'visSegsSlices') && isfield(handles,'visSegs'))
         rect = handles.visSegs{1,vertebra_num};
-        dispString = strcat(dispString,sprintf('Point1:'));
         if(~isempty(rect))
-        dispString = strcat(dispString,sprintf('\n\tx: %.2f',rect(1)));
-        dispString = strcat(dispString,sprintf('\n\ty: %.2f',rect(2)));
-        dispString = strcat(dispString,sprintf('\n\tslice: %d',handles.visSegsSlices{2*vertebra_num-1}));        
+            set(handles.p1x,'String',sprintf('\tx: %.2f',rect(1)));
+            set(handles.p1y,'String',sprintf('\ty: %.2f',rect(2)));
+            set(handles.p1slice,'String',sprintf('\tslice: %d',handles.visSegsSlices{2*vertebra_num-1}));        
         else
-        dispString = strcat(dispString,sprintf('\n\tx:'));
-        dispString = strcat(dispString,sprintf('\n\ty:'));
-        dispString = strcat(dispString,sprintf('\n\tslice:'));               
+            set(handles.p1x,'String',sprintf('\tx:'));
+            set(handles.p1y,'String',sprintf('\ty:'));
+            set(handles.p1slice,'String',sprintf('\tslice:'));               
         end
-        dispString = strcat(dispString,sprintf('\nPoint2:'));
         if(length(rect) > 2)
-        dispString = strcat(dispString,sprintf('\n\tx: %.2f',rect(3)));
-        dispString = strcat(dispString,sprintf('\n\ty: %.2f',rect(4)));
-        dispString = strcat(dispString,sprintf('\n\tslice: %d',handles.visSegsSlices{2*vertebra_num}));                
+            set(handles.p2x,'String',sprintf('\tx: %.2f',rect(3)));
+            set(handles.p2y,'String',sprintf('\ty: %.2f',rect(4)));
+            set(handles.p2slice,'String',sprintf('\tslice: %d',handles.visSegsSlices{2*vertebra_num}));                
         else
-        dispString = strcat(dispString,sprintf('\n\tx:'));
-        dispString = strcat(dispString,sprintf('\n\ty:'));    
-        dispString = strcat(dispString,sprintf('\n\tslice:')); 
+            set(handles.p2x,'String',sprintf('\tx:'));
+            set(handles.p2y,'String',sprintf('\ty:'));    
+            set(handles.p2slice,'String',sprintf('\tslice:')); 
         end
     end
     
-    % display segmentation sinfo text
-    set(handles.sliceDisplay,'String',dispString);
 end
 
 % --- Executes on selection change in DataSetPopUp.
@@ -279,3 +276,213 @@ function startSegmButton_Callback(hObject, eventdata, handles)
 % hObject    handle to startSegmButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in p1xdown.
+function p1xdown_Callback(hObject, eventdata, handles)
+% hObject    handle to p1xdown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(1) = handles.visSegs{1,vertebra_num}(1) - 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+% --- Executes on button press in p1xup.
+function p1xup_Callback(hObject, eventdata, handles)
+% hObject    handle to p1xup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(1) = handles.visSegs{1,vertebra_num}(1) + 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+% --- Executes on button press in p1ydown.
+function p1ydown_Callback(hObject, eventdata, handles)
+% hObject    handle to p1ydown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(2) = handles.visSegs{1,vertebra_num}(2) + 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+
+% --- Executes on button press in p1yup.
+function p1yup_Callback(hObject, eventdata, handles)
+% hObject    handle to p1yup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(2) = handles.visSegs{1,vertebra_num}(2) - 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+
+% --- Executes on button press in p2xup.
+function p2xup_Callback(hObject, eventdata, handles)
+% hObject    handle to p2xup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(3) = handles.visSegs{1,vertebra_num}(3) + 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+
+% --- Executes on button press in p2xdown.
+function p2xdown_Callback(hObject, eventdata, handles)
+% hObject    handle to p2xdown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(3) = handles.visSegs{1,vertebra_num}(3) - 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+% --- Executes on button press in p2ydown.
+function p2ydown_Callback(hObject, eventdata, handles)
+% hObject    handle to p2ydown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(4) = handles.visSegs{1,vertebra_num}(4) - 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+
+% --- Executes on button press in p2yup.
+function p2yup_Callback(hObject, eventdata, handles)
+% hObject    handle to p2yup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
+    handles.visSegs{1,vertebra_num}(4) = handles.visSegs{1,vertebra_num}(4) + 1.0;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+% --- Executes on button press in p2slicedown.
+function p2slicedown_Callback(hObject, eventdata, handles)
+% hObject    handle to p2slicedown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(~isempty(handles.visSegsSlices{2*vertebra_num}))
+    handles.visSegsSlices{2*vertebra_num} = handles.visSegsSlices{2*vertebra_num} -1;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+% --- Executes on button press in p2sliceup.
+function p2sliceup_Callback(hObject, eventdata, handles)
+% hObject    handle to p2sliceup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(~isempty(handles.visSegsSlices{2*vertebra_num}))
+    handles.visSegsSlices{2*vertebra_num} = handles.visSegsSlices{2*vertebra_num} + 1;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+% --- Executes on button press in p1sliceup.
+function p1sliceup_Callback(hObject, eventdata, handles)
+% hObject    handle to p1sliceup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(~isempty(handles.visSegsSlices{2*vertebra_num-1}))
+    handles.visSegsSlices{2*vertebra_num-1} = handles.visSegsSlices{2*vertebra_num-1} +1;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
+
+
+% --- Executes on button press in p1slicedown.
+function p1slicedown_Callback(hObject, eventdata, handles)
+% hObject    handle to p1slicedown (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+vertebra_num = get(handles.DataSetPopUp,'Value');
+
+if(~isempty(handles.visSegsSlices{2*vertebra_num-1}))
+    handles.visSegsSlices{2*vertebra_num-1} = handles.visSegsSlices{2*vertebra_num-1} -1;
+end
+
+% update handles
+guidata(hObject,handles);
+
+display_dataset(handles);
