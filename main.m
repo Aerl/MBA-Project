@@ -34,7 +34,7 @@ for patient = 1:9
     dataset = strcat('p0',num2str(patient));
     disp(dataset);
     scan = 't1_wk';
-    filepath = strcat(parentpath,'\','Data_v2\',dataset,'\',scan);
+    filepath = strcat(parentpath,'/','Data_v2/',dataset,'/',scan);
     
     % use dialog to select folder
     % filepath = uigetdir;
@@ -49,7 +49,7 @@ for patient = 1:9
         [s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra});
 
         % load ground truth images
-        filepath = strcat(parentpath,'\','Data_Segmentation');
+        filepath = strcat(parentpath,'/','Data_Segmentation');
         filter = strcat(dataset,'_seg_l',num2str(vertebra),'*.png');
         groundTruthFiles = dir(fullfile(filepath,filter));
         groundTruthFiles = {groundTruthFiles.name};
