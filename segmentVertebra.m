@@ -1,4 +1,4 @@
-function [ contours, binaryResult ] = segmentVertebra( vertebra,resampledImage,originalImage )
+function [ contours, binaryResult ] = segmentVertebra( vertebra,resampledImage,originalImage, distance_field )
 global p;
 % select Vertebra
 if (p(1).subsamplingIsOn)

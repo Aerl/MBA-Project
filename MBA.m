@@ -292,27 +292,53 @@ function startSegmButton_Callback(hObject, eventdata, handles)
 % hObject    handle to startSegmButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-s(1).Names = handles.visNames;
-s(1).ResampledImages = handles.visData;
-s(1).OriginalImages = handles.orgIm;
+global p;
+global s;
 
 vertebra = get(handles.DataSetPopUp,'Value');
-[s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra});
-        
-title = strcat('Result ',' - Vertebra  ',num2str(vertebra));
-figure('name',title,'numbertitle','off');
-sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,1));
 
-for i = 1:15
-    subplot(3,5,i);
-    imshow(s(1).OriginalImages{vertebra}(:,:,i),[]);
-    red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
-    hold on;
-    hr = imshow(red);
-    hold off;
-    set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
-    set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra}))
+    
+    s(1).Names = handles.visNames;
+    s(1).ResampledImages = handles.visData;
+    s(1).OriginalImages = handles.orgIm;    
+    
+    margin = int64([(handles.visSegs{1,vertebra}(3)/2) ...
+        (handles.visSegs{1,vertebra}(4)/2) ...
+        (handles.visSegsSlices{2*vertebra}-handles.visSegsSlices{2*vertebra-1})/2]);
+    
+    center = int64([handles.visSegs{1,vertebra}(1)+margin(1) ...
+        handles.visSegs{1,vertebra}(2)+margin(2)...
+        handles.visSegsSlices{2*vertebra-1} + margin(3)]);
+
+    % select Vertebra
+    if (p(1).subsamplingIsOn)
+        sz = size(s(1).ResampledImages{vertebra});
+    else
+        sz = size(s(1).OriginalImages{vertebra});
+    end
+    
+    distance_field = initialize_distance_field(sz, center, margin, 0.5);
+    
+    [s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra},distance_field);
+
+    title = strcat('Result ',' - Vertebra  ',num2str(vertebra));
+    figure('name',title,'numbertitle','off');
+    sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,1));
+
+    for i = 1:15
+        subplot(3,5,i);
+        imshow(s(1).OriginalImages{vertebra}(:,:,i),[]);
+        red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
+        hold on;
+        hr = imshow(red);
+        hold off;
+        set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+        set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+    end
+
+else
+    warning('no initial Segmentation set');
 end
 
 % --- Executes on button press in p1xdown.
