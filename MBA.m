@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 23-Jan-2016 13:42:22
+% Last Modified by GUIDE v2.5 23-Jan-2016 17:12:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -304,14 +304,6 @@ if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra}))
     s(1).Names = handles.visNames;
     s(1).ResampledImages = handles.visData;
     s(1).OriginalImages = handles.orgIm;    
-    
-    margin = int64([(handles.visSegs{1,vertebra}(3)/2) ...
-        (handles.visSegs{1,vertebra}(4)/2) ...
-        (handles.visSegsSlices{2*vertebra}-handles.visSegsSlices{2*vertebra-1})/2]);
-    
-    center = int64([handles.visSegs{1,vertebra}(1)+margin(1) ...
-        handles.visSegs{1,vertebra}(2)+margin(2)...
-        handles.visSegsSlices{2*vertebra-1} + margin(3)]);
 
     % select Vertebra
     if (p(1).subsamplingIsOn)
@@ -320,8 +312,22 @@ if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra}))
         sz = size(s(1).OriginalImages{vertebra});
     end
     
-    distance_field = initialize_distance_field(sz, center, margin, 0.5);
-    
+    if(get(handles.UseUserInitSeg,'Value'));
+        
+        margin = floor([(handles.visSegs{1,vertebra}(3)/2) ...
+            (handles.visSegs{1,vertebra}(4)/2) ...
+            (handles.visSegsSlices{2*vertebra}-handles.visSegsSlices{2*vertebra-1})/2]);
+
+        center = floor([handles.visSegs{1,vertebra}(1)+margin(1) ...
+            handles.visSegs{1,vertebra}(2)+margin(2)...
+            handles.visSegsSlices{2*vertebra-1} + margin(3)]);
+
+        distance_field = initialize_distance_field(sz, center, margin, 0.5);
+    else
+       
+        distance_field = distanceFieldByGT(floor([handles.visSegs{1,vertebra}(1:2) handles.visSegsSlices{2*vertebra-1}]), floor([handles.visSegs{1,vertebra}(3:4) (handles.visSegsSlices{2*vertebra}-handles.visSegsSlices{2*vertebra-1})]), vertebra,sz); 
+        
+    end
     [s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra},distance_field);
 
     title = strcat('Result ',' - Vertebra  ',num2str(vertebra));
@@ -554,3 +560,12 @@ end
 guidata(hObject,handles);
 
 display_dataset(handles);
+
+
+% --- Executes on button press in UseUserInitSeg.
+function UseUserInitSeg_Callback(hObject, eventdata, handles)
+% hObject    handle to UseUserInitSeg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of UseUserInitSeg
