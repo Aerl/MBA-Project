@@ -20,7 +20,11 @@ close all;
 % add subfolders
 addpath('loadDICOM');
 addpath('AOSLevelsetSegmentationToolboxM');
-addpath('imtool3D');
+
+ResultJaccard = zeros(10,6);
+ResultJaccard(:,1) = 0:9;
+ResultJaccard(1,:) = 0:5;
+ResultDice = ResultJaccard;
 
 %% Load Image (just for image data not for segmentation)
 formatOut = 'dd.mm.yyyy-HH.MM.SS';
@@ -83,20 +87,28 @@ for patient = 1:9
         % calculate jaccard and dice index
         [jaccardIndex, diceIndex] = similarity(s(1).BinarySegmentation{vertebra},groundTruthImages,sizeIMG);
         disp('');
-        disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
-        disp(jaccardIndex);
-        disp(strcat('Dice Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
-        disp(diceIndex);
+        %disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
+        %disp(jaccardIndex);
+        ResultJaccard(patient+1,vertebra+1) = jaccardIndex;
+        %disp(strcat('Dice Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
+        %disp(diceIndex);
+        ResultDice(patient+1,vertebra+1) = diceIndex;
+        
         
     end
     
 end
 toc
 
-filename = strcat('Jaccard-Subsampling(',num2str(p(1).subsamplingIsOn),...
+jFilename = strcat('Jaccard-Subsampling(',num2str(p(1).subsamplingIsOn),...
     ')-Smoothing(',num2str(p(1).smoothDistanceFieldIsOn),')-',...
     datestr(clock, formatOut),'.mat');
-save(filename,'ResultJaccard');
+save(jFilename,'ResultJaccard');
+
+dFilename = strcat('Dice-Subsampling(',num2str(p(1).subsamplingIsOn),...
+    ')-Smoothing(',num2str(p(1).smoothDistanceFieldIsOn),')-',...
+    datestr(clock, formatOut),'.mat');
+save(dFilename,'ResultDice');
 
 % clear workspace
 clear all;
