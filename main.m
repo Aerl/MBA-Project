@@ -27,11 +27,11 @@ ResultJaccard = zeros(10,6);
 ResultJaccard(:,1) = 0:9;
 ResultJaccard(1,:) = 0:5;
 ResultDice = ResultJaccard;
+Iterations = ResultJaccard;
+Time = ResultJaccard;
 
 %% Load Image (just for image data not for segmentation)
 formatOut = 'dd.mm.yyyy-HH.MM.SS';
-
-tic
 
 for patient = 1:9
     %% Load Image
@@ -52,8 +52,11 @@ for patient = 1:9
     for vertebra = 1:5
         %% Segmentation of all vertebrae
         disp(strcat('-v',num2str(vertebra)));
-        [s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra});
-
+        
+        tic;
+        [s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}, Iterations(patient+1,vertebra+1)] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra});
+        Time(patient+1,vertebra+1) = toc;
+        
         % load ground truth images
         filepath = strcat(parentpath,'/','Data_Segmentation');
         filter = strcat(dataset,'_seg_l',num2str(vertebra),'*.png');
@@ -100,17 +103,21 @@ for patient = 1:9
     end
     
 end
-toc
-
-jFilename = strcat('Jaccard-Subsampling(',num2str(p(1).subsamplingIsOn),...
-    ')-Smoothing(',num2str(p(1).smoothDistanceFieldIsOn),')-',...
+FN = strcat('-SS(',num2str(p(1).subsamplingIsOn),...
+    ')-SM(',num2str(p(1).smoothDistanceFieldIsOn),')-',...
     datestr(clock, formatOut),'.mat');
+
+jFilename = strcat('Jaccard',FN);
 save(jFilename,'ResultJaccard');
 
-dFilename = strcat('Dice-Subsampling(',num2str(p(1).subsamplingIsOn),...
-    ')-Smoothing(',num2str(p(1).smoothDistanceFieldIsOn),')-',...
-    datestr(clock, formatOut),'.mat');
+dFilename = strcat('Dice',FN);
 save(dFilename,'ResultDice');
+
+tFilename = strcat('Time',FN);
+save(tFilename,'Time');
+
+iFilename = strcat('Iterations',FN);
+save(iFilename,'Iterations');
 
 % clear workspace
 clear all;

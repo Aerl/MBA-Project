@@ -1,4 +1,4 @@
-function [ result, binary ] = levelSet( image, distance_field, gradient_field, resolution )
+function [ result, binary, i ] = levelSet( image, distance_field, gradient_field, resolution )
 global p;
 
 middle = round(size(image,3)/2);

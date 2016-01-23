@@ -1,4 +1,4 @@
-function [ contours, binaryResult ] = segmentVertebra( vertebra,resampledImage,originalImage )
+function [ contours, binaryResult, iterations ] = segmentVertebra( vertebra,resampledImage,originalImage )
 global p;
 % select Vertebra
 if (p(1).subsamplingIsOn)
@@ -28,7 +28,7 @@ if (p(1).smoothDistanceFieldIsOn)
 end
 
 % segment vertebra using hybrid level set
-[contours, binary] = levelSet( image, distance_field, gradient_field, p(1).resolution{vertebra} );
+[contours, binary, iterations] = levelSet( image, distance_field, gradient_field, p(1).resolution{vertebra} );
 
 % recalculate center of anisotropic data
 if (p(1).subsamplingIsOn)
