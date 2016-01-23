@@ -10,16 +10,18 @@ end
 % compute gradient field
 gradient_field = ac_gradient_map(image,1);
 
-% set center and margin depending on image size
+if (nargin < 4) % distancefield
+    % set center and margin depending on image size
+    margin = size(image) * 0.08;
+    margin(3) = margin(3) * 1.5;
+    margin = round(margin);
 
-margin = size(image) * 0.08;
-margin(3) = margin(3) * 1.5;
-margin = round(margin);
+    [center] = computeCenter(image);
 
-[center] = computeCenter(image);
+    %initialize distance field
+    distance_field = initialize_distance_field(size(image), center, margin, 0.5);
+end
 
-%initialize distance field
-distance_field = initialize_distance_field(size(image), center, margin, 0.5);
 
 % smooth Initialization
 if (p(1).smoothDistanceFieldIsOn)
