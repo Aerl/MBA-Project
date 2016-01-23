@@ -299,6 +299,8 @@ vertebra = get(handles.DataSetPopUp,'Value');
 
 if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra}))
     
+    [fileName,pathName] = uiputfile({'*.mat'},'Save Result as ...','segmentation.mat');
+    
     s(1).Names = handles.visNames;
     s(1).ResampledImages = handles.visData;
     s(1).OriginalImages = handles.orgIm;    
@@ -336,7 +338,10 @@ if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra}))
         set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
         set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
     end
-
+    
+    res = s(1).BinarySegmentation{vertebra};
+    save(strcat(pathName,fileName),'res');
+    
 else
     warning('no initial Segmentation set');
 end
