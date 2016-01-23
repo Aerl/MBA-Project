@@ -1,7 +1,8 @@
 function [ GT ] = loadErodedGT(vertIndex, erosiondiameter, leftOut  )
 
 if nargin <3
-    GTs = load('GroundTruthPerVertibrae.mat');
+    path = 'GT_Processed/GroundTruthPerVertibrae.mat';
+    GTs = load(path);
     GT = GTs.GTALL{vertIndex};
 
     se = strel('disk', erosiondiameter);
