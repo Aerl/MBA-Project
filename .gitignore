@@ -20,3 +20,5 @@ PathToDataset.txt
 
 # Level Set Toolbox
 AOSLevelsetSegmentationToolboxM/
+
+*.mat
