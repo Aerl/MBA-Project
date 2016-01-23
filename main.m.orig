@@ -1,0 +1,27 @@
+<<<<<<< HEAD
+% add scripts and stuff
+addpath(genpath('loadDICOM'));
+addpath(genpath('AOSLevelsetSegmentationToolboxM'));
+=======
+%% structs
+global s;
+s = struct('OriginalImages',{},'ResampledImages',{},'Names',{}, 'Segmentation',{}, 'BinarySegmentation', {});
+global p;
+p = struct('iterations',[],'delta_time',[],'gac_weight',[],'propagation_weight',...
+    [],'mu',[],'resolution',{}, 'subsamplingIsOn',[], 'smoothDistanceFieldIsOn',[],...
+    'gaussSize',[],'gaussSigma',[],'convergenceThreshold',[]);
+
+p(1).iterations = 40;
+p(1).delta_time = 1;
+p(1).propagation_weight = 1e-6;
+p(1).gac_weight = 1 - p(1).propagation_weight;
+p(1).mu = 300;
+p(1).subsamplingIsOn = 1;
+p(1).smoothDistanceFieldIsOn = 0;
+p(1).gaussSize = [10 10];
+p(1).gaussSigma = 8;
+p(1).convergenceThreshold = 0.07;
+>>>>>>> ead60253e9aed378575b790f26e12fe10b2da9c0
+
+% start gui
+MBA;
