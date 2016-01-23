@@ -4,7 +4,8 @@ s = struct('OriginalImages',{},'ResampledImages',{},'Names',{}, 'Segmentation',{
 global p;
 p = struct('iterations',[],'delta_time',[],'gac_weight',[],'propagation_weight',...
     [],'mu',[],'resolution',{}, 'subsamplingIsOn',[], 'smoothDistanceFieldIsOn',[],...
-    'gaussSize',[],'gaussSigma',[]);
+    'gaussSize',[],'gaussSigma',[],'convergenceThreshold',[]);
+
 p(1).iterations = 40;
 p(1).delta_time = 1;
 p(1).propagation_weight = 1e-6;
@@ -14,6 +15,7 @@ p(1).subsamplingIsOn = 1;
 p(1).smoothDistanceFieldIsOn = 0;
 p(1).gaussSize = [10 10];
 p(1).gaussSigma = 8;
+p(1).convergenceThreshold = 0.07;
 
 close all;
 
