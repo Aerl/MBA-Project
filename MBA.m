@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 21-Jan-2016 19:27:24
+% Last Modified by GUIDE v2.5 23-Jan-2016 13:42:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,6 +60,22 @@ guidata(hObject, handles);
 % UIWAIT makes MBA wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+global s;
+s = struct('OriginalImages',{},'ResampledImages',{},'Names',{}, 'Segmentation',{}, 'BinarySegmentation', {});
+global p;
+p = struct('iterations',[],'delta_time',[],'gac_weight',[],'propagation_weight',...
+    [],'mu',[],'resolution',{}, 'subsamplingIsOn',[], 'smoothDistanceFieldIsOn',[],...
+    'gaussSize',[],'gaussSigma',[]);
+p(1).iterations = 40;
+p(1).delta_time = 1;
+p(1).propagation_weight = 1e-6;
+p(1).gac_weight = 1 - p(1).propagation_weight;
+p(1).mu = 300;
+p(1).subsamplingIsOn = 1;
+p(1).smoothDistanceFieldIsOn = 0;
+p(1).gaussSize = [10 10];
+p(1).gaussSigma = 8;
+
 addlistener(handles.DataSetSlicer,'ContinuousValueChange',@DataSetSlicer_ContiniousCallback);
 
 
@@ -84,7 +100,9 @@ directory = uigetdir();
 
 if(ischar(directory))
     path = getAllFiles(directory);
-    [names,images] = loadDICOM(path);
+    [names,images,orgIm] = loadDICOM(path);
+    
+    handles.orgIm = orgIm;
 
     handles.visData = images;
     handles.visNames = names;
@@ -145,8 +163,6 @@ handles = guidata(hObject);
 display_dataset(handles);
 
 function display_dataset(handles)
-
-handles
 
 if isfield(handles,'visData')
     slice_num = floor(get(handles.DataSetSlicer,'Value'));    
@@ -277,6 +293,27 @@ function startSegmButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+s(1).Names = handles.visNames;
+s(1).ResampledImages = handles.visData;
+s(1).OriginalImages = handles.orgIm;
+
+vertebra = get(handles.DataSetPopUp,'Value');
+[s(1).Segmentation{vertebra}, s(1).BinarySegmentation{vertebra}] = segmentVertebra(vertebra,s(1).ResampledImages{vertebra},s(1).OriginalImages{vertebra});
+        
+title = strcat('Result ',' - Vertebra  ',num2str(vertebra));
+figure('name',title,'numbertitle','off');
+sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,1));
+
+for i = 1:15
+    subplot(3,5,i);
+    imshow(s(1).OriginalImages{vertebra}(:,:,i),[]);
+    red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
+    hold on;
+    hr = imshow(red);
+    hold off;
+    set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+    set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+end
 
 % --- Executes on button press in p1xdown.
 function p1xdown_Callback(hObject, eventdata, handles)
