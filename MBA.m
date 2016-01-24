@@ -209,8 +209,8 @@ if isfield(handles,'visData')
             set(handles.p1slice,'String',sprintf('\tslice:'));               
         end
         if(length(rect) > 2)
-            set(handles.p2x,'String',sprintf('\tx: %.2f',rect(3)));
-            set(handles.p2y,'String',sprintf('\ty: %.2f',rect(4)));
+            set(handles.p2x,'String',sprintf('\tx: %.2f',rect(1)+rect(3)));
+            set(handles.p2y,'String',sprintf('\ty: %.2f',rect(2)+rect(4)));
             set(handles.p2slice,'String',sprintf('\tslice: %d',handles.visSegsSlices{2*vertebra_num}));                
         else
             set(handles.p2x,'String',sprintf('\tx:'));
@@ -371,6 +371,7 @@ vertebra_num = get(handles.DataSetPopUp,'Value');
 
 if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
     handles.visSegs{1,vertebra_num}(1) = handles.visSegs{1,vertebra_num}(1) - 1.0;
+    handles.visSegs{1,vertebra_num}(3) = handles.visSegs{1,vertebra_num}(3) + 1.0;
 end
 
 % update handles
@@ -388,6 +389,7 @@ vertebra_num = get(handles.DataSetPopUp,'Value');
 
 if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
     handles.visSegs{1,vertebra_num}(1) = handles.visSegs{1,vertebra_num}(1) + 1.0;
+    handles.visSegs{1,vertebra_num}(3) = handles.visSegs{1,vertebra_num}(3) - 1.0;
 end
 
 % update handles
@@ -405,6 +407,7 @@ vertebra_num = get(handles.DataSetPopUp,'Value');
 
 if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
     handles.visSegs{1,vertebra_num}(2) = handles.visSegs{1,vertebra_num}(2) + 1.0;
+    handles.visSegs{1,vertebra_num}(4) = handles.visSegs{1,vertebra_num}(4) - 1.0;
 end
 
 % update handles
@@ -423,6 +426,7 @@ vertebra_num = get(handles.DataSetPopUp,'Value');
 
 if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}))
     handles.visSegs{1,vertebra_num}(2) = handles.visSegs{1,vertebra_num}(2) - 1.0;
+    handles.visSegs{1,vertebra_num}(4) = handles.visSegs{1,vertebra_num}(4) + 1.0;
 end
 
 % update handles
