@@ -22,7 +22,7 @@ function varargout = MBA(varargin)
 
 % Edit the above text to modify the response to help MBA
 
-% Last Modified by GUIDE v2.5 23-Jan-2016 17:12:17
+% Last Modified by GUIDE v2.5 24-Jan-2016 16:26:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -170,14 +170,20 @@ function display_dataset(handles)
 if isfield(handles,'visData')
     slice_num = floor(get(handles.DataSetSlicer,'Value'));    
     vertebra_num = get(handles.DataSetPopUp,'Value');
-    I = handles.visData{1,vertebra_num}(:,:,slice_num)/handles.maxIntensities{1,vertebra_num};
+    
+    if(get(handles.normCheckbox,'Value'))
+        I = handles.visData{1,vertebra_num}(:,:,slice_num);
+        I = I/max(max(I));
+    else
+        I = handles.visData{1,vertebra_num}(:,:,slice_num)/handles.maxIntensities{1,vertebra_num};
+    end
 
     if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}) && isfield(handles,'visSegsSlices') && slice_num >= handles.visSegsSlices{2*vertebra_num-1} && ~isempty(handles.visSegsSlices{2*vertebra_num}) && slice_num <= handles.visSegsSlices{2*vertebra_num})
         RGB = repmat(I,[1,1,3]); % convert I to an RGB image 
         RGB = insertShape(RGB, 'rectangle', handles.visSegs{1,vertebra_num} , 'LineWidth', 1);
-        imshow(RGB,[],'Parent',handles.DataSetAxes);
+        imshow(RGB,'Parent',handles.DataSetAxes);
     else
-        imshow(I,[],'Parent',handles.DataSetAxes);
+        imshow(I,[0.0 1.0],'Parent',handles.DataSetAxes);
     end
 
     set(imhandles(handles.DataSetAxes),'ButtonDownFcn',@SliceImageButtonDownFun);
@@ -572,3 +578,15 @@ function UseUserInitSeg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of UseUserInitSeg
+
+
+% --- Executes on button press in normCheckbox.
+function normCheckbox_Callback(hObject, eventdata, handles)
+% hObject    handle to normCheckbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of normCheckbox
+display_dataset(handles);
+
+
