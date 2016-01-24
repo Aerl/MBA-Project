@@ -29,11 +29,13 @@ ResultJaccard(1,:) = 0:5;
 ResultDice = ResultJaccard;
 Iterations = ResultJaccard;
 Time = ResultJaccard;
+ResultJaccardSlice = repmat(ResultJaccard,[1 1 15]);
+ResultDiceSlice = ResultJaccardSlice;
 
 %% Load Image (just for image data not for segmentation)
 formatOut = 'dd.mm.yyyy-HH.MM.SS';
 
-for patient = 1:1
+for patient = 1:9
     %% Load Image
     % set file path by text file
     parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
@@ -90,15 +92,9 @@ for patient = 1:1
         end
         
         % calculate jaccard and dice index
-        [jaccardIndex, diceIndex] = similarity(s(1).BinarySegmentation{vertebra},groundTruthImages,sizeIMG);
-        disp('');
-        %disp(strcat('Jaccard Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
-        %disp(jaccardIndex);
-        ResultJaccard(patient+1,vertebra+1) = jaccardIndex;
-        %disp(strcat('Dice Index of ',dataset,' Vertebra #',num2str(vertebra) ,':'));
-        %disp(diceIndex);
-        ResultDice(patient+1,vertebra+1) = diceIndex;
-        
+        [ResultJaccard(patient+1,vertebra+1), ResultDice(patient+1,vertebra+1)] = similarity(s(1).BinarySegmentation{vertebra},groundTruthImages,sizeIMG);
+        [ResultJaccardSlice(patient+1,vertebra+1,:), ResultDiceSlice(patient+1,vertebra+1,:)] = similarity2D( s(1).BinarySegmentation{vertebra}, groundTruthImages, sizeIMG );
+       
         
     end
     
@@ -118,6 +114,12 @@ save(jFilename,'ResultJaccard');
 
 dFilename = strcat(Folder,'/Dice',FN);
 save(dFilename,'ResultDice');
+
+jFilename = strcat(Folder,'/JaccardSlice',FN);
+save(jFilename,'ResultJaccardSlice');
+
+dFilename = strcat(Folder,'/DiceSlice',FN);
+save(dFilename,'ResultDiceSlice');
 
 tFilename = strcat(Folder,'/Time',FN);
 save(tFilename,'Time');
