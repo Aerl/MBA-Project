@@ -30,8 +30,8 @@ binary = (distance_field>0);
 % compute countours
 numer_of_slices = size(distance_field,3);
 result = cell(numer_of_slices,1);
-for i = 1:numer_of_slices
-    result{i} = contours(distance_field(:,:,i),[0,0]);
+for s = 1:numer_of_slices
+    result{s} = contours(distance_field(:,:,s),[0,0]);
 end
 
 end
