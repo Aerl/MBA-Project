@@ -3,7 +3,7 @@ global p;
 
 middle = round(size(image,3)/2);
 
-margin = ceil(middle * 0.3);
+margin = ceil(middle * p(1).differenceMargin);
 
 % propagate distance field
 for i = 1:p(1).iterations

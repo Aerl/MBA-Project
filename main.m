@@ -4,9 +4,9 @@ s = struct('OriginalImages',{},'ResampledImages',{},'Names',{}, 'Segmentation',{
 global p;
 p = struct('iterations',[],'delta_time',[],'gac_weight',[],'propagation_weight',...
     [],'mu',[],'resolution',{}, 'subsamplingIsOn',[], 'smoothDistanceFieldIsOn',[],...
-    'gaussSize',[],'gaussSigma',[],'convergenceThreshold',[]);
+    'gaussSize',[],'gaussSigma',[],'convergenceThreshold',[],'differenceMargin',[]);
 
-p(1).iterations = 40;
+p(1).iterations = 50;
 p(1).delta_time = 1;
 p(1).propagation_weight = 1e-6;
 p(1).gac_weight = 1 - p(1).propagation_weight;
@@ -16,6 +16,7 @@ p(1).smoothDistanceFieldIsOn = 0;
 p(1).gaussSize = [10 10];
 p(1).gaussSigma = 8;
 p(1).convergenceThreshold = 0.07;
+p(1).differenceMargin = 0.15;
 
 close all;
 
@@ -72,25 +73,25 @@ for patient = 1:9
             groundTruthImages{i} = imread(groundTruthNames{i});
         end
         
-        %plot everything
-%         title = strcat(dataset,' - Vertebra  ',num2str(vertebra));
-%         figure('name',title,'numbertitle','off');
-%         sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,1));
-%         for i = 1:15
-%             groundTruth = imresize(groundTruthImages{i},sizeIMG);
-%             subplot(3,5,i);
-%             imshow(s(1).OriginalImages{vertebra}(:,:,i),[]);
-%             green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
-%             red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
-%             hold on;
-%             hg = imshow(green);
-%             hr = imshow(red);
-%             hold off;
-%             set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
-%             set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
-%             set(hg, 'AlphaData',0.3* groundTruth)
-%         end
-%         
+        % plot everything
+        title = strcat(dataset,' - Vertebra  ',num2str(vertebra));
+        figure('name',title,'numbertitle','off');
+         sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,1));
+        for i = 1:15
+            groundTruth = imresize(groundTruthImages{i},sizeIMG);
+            subplot(3,5,i);
+            imshow(s(1).OriginalImages{vertebra}(:,:,i),[]);
+            green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
+            red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
+            hold on;
+            hg = imshow(green);
+            hr = imshow(red);
+            hold off;
+            set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+            set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+            set(hg, 'AlphaData',0.3* groundTruth)
+        end
+        
         % calculate jaccard and dice index
         [ResultJaccard(patient+1,vertebra+1), ResultDice(patient+1,vertebra+1)] = similarity(s(1).BinarySegmentation{vertebra},groundTruthImages,sizeIMG);
         [ResultJaccardSlice(patient+1,vertebra+1,:), ResultDiceSlice(patient+1,vertebra+1,:)] = similarity2D( s(1).BinarySegmentation{vertebra}, groundTruthImages, sizeIMG );
@@ -104,6 +105,7 @@ FN = strcat('-SS(',num2str(p(1).subsamplingIsOn),...
     ')-T(',num2str(p(1).convergenceThreshold),...
     ')-M(',num2str(p(1).mu),...
     ')-PW(',num2str(p(1).propagation_weight),...
+    ')-DM(',num2str(p(1).differenceMargin),...
     ')-',datestr(clock, formatOut),'.mat');
 Folder = 'Results';
 
