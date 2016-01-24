@@ -77,6 +77,7 @@ p(1).smoothDistanceFieldIsOn = 0;
 p(1).gaussSize = [10 10];
 p(1).gaussSigma = 8;
 p(1).convergenceThreshold = 0.07;
+p(1).differenceMargin = 0.15;
 
 addlistener(handles.DataSetSlicer,'ContinuousValueChange',@DataSetSlicer_ContiniousCallback);
 
@@ -174,9 +175,9 @@ if isfield(handles,'visData')
     if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra_num}) && isfield(handles,'visSegsSlices') && slice_num >= handles.visSegsSlices{2*vertebra_num-1} && ~isempty(handles.visSegsSlices{2*vertebra_num}) && slice_num <= handles.visSegsSlices{2*vertebra_num})
         RGB = repmat(I,[1,1,3]); % convert I to an RGB image 
         RGB = insertShape(RGB, 'rectangle', handles.visSegs{1,vertebra_num} , 'LineWidth', 1);
-        imshow(RGB,'Parent',handles.DataSetAxes);
+        imshow(RGB,[],'Parent',handles.DataSetAxes);
     else
-        imshow(I,[0.0 1.0],'Parent',handles.DataSetAxes);
+        imshow(I,[],'Parent',handles.DataSetAxes);
     end
 
     set(imhandles(handles.DataSetAxes),'ButtonDownFcn',@SliceImageButtonDownFun);
@@ -314,7 +315,7 @@ if(isfield(handles,'visSegs') && ~isempty(handles.visSegs{1,vertebra}))
         sz = size(s(1).OriginalImages{vertebra});
     end
     
-    if(get(handles.UseUserInitSeg,'Value'));
+    if(~get(handles.UseUserInitSeg,'Value'));
         
         margin = floor([(handles.visSegs{1,vertebra}(3)/2) ...
             (handles.visSegs{1,vertebra}(4)/2) ...
