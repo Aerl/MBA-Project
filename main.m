@@ -33,7 +33,7 @@ Time = ResultJaccard;
 %% Load Image (just for image data not for segmentation)
 formatOut = 'dd.mm.yyyy-HH.MM.SS';
 
-for patient = 1:9
+for patient = 1:1
     %% Load Image
     % set file path by text file
     parentpath = fileread('PathToDataset.txt'); % Copy 'PathToDataset.txt.sample' to 'PathToDataset.txt' set the correct path
@@ -104,19 +104,25 @@ for patient = 1:9
     
 end
 FN = strcat('-SS(',num2str(p(1).subsamplingIsOn),...
-    ')-SM(',num2str(p(1).smoothDistanceFieldIsOn),')-',...
-    datestr(clock, formatOut),'.mat');
+    ')-SM(',num2str(p(1).smoothDistanceFieldIsOn),...
+    ')-T(',num2str(p(1).convergenceThreshold),...
+    ')-M(',num2str(p(1).mu),...
+    ')-PW(',num2str(p(1).propagation_weight),...
+    ')-',datestr(clock, formatOut),'.mat');
+Folder = 'Results';
 
-jFilename = strcat('Jaccard',FN);
+mkdir(Folder);
+
+jFilename = strcat(Folder,'/Jaccard',FN);
 save(jFilename,'ResultJaccard');
 
-dFilename = strcat('Dice',FN);
+dFilename = strcat(Folder,'/Dice',FN);
 save(dFilename,'ResultDice');
 
-tFilename = strcat('Time',FN);
+tFilename = strcat(Folder,'/Time',FN);
 save(tFilename,'Time');
 
-iFilename = strcat('Iterations',FN);
+iFilename = strcat(Folder,'/Iterations',FN);
 save(iFilename,'Iterations');
 
 % clear workspace
