@@ -24,6 +24,10 @@ function varargout = MBA(varargin)
 
 % Last Modified by GUIDE v2.5 24-Jan-2016 16:26:47
 
+% add scripts and stuff
+addpath(genpath('loadDICOM'));
+addpath(genpath('AOSLevelsetSegmentationToolboxM'));
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
