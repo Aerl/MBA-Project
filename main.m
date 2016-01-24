@@ -73,24 +73,24 @@ for patient = 1:9
         end
         
         %plot everything
-        title = strcat(dataset,' - Vertebra  ',num2str(vertebra));
-        figure('name',title,'numbertitle','off');
-        sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,1));
-        for i = 1:15
-            groundTruth = imresize(groundTruthImages{i},sizeIMG);
-            subplot(3,5,i);
-            imshow(s(1).OriginalImages{vertebra}(:,:,i),[]);
-            green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
-            red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
-            hold on;
-            hg = imshow(green);
-            hr = imshow(red);
-            hold off;
-            set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
-            set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
-            set(hg, 'AlphaData',0.3* groundTruth)
-        end
-        
+%         title = strcat(dataset,' - Vertebra  ',num2str(vertebra));
+%         figure('name',title,'numbertitle','off');
+%         sizeIMG = size(s(1).OriginalImages{vertebra}(:,:,1));
+%         for i = 1:15
+%             groundTruth = imresize(groundTruthImages{i},sizeIMG);
+%             subplot(3,5,i);
+%             imshow(s(1).OriginalImages{vertebra}(:,:,i),[]);
+%             green = cat(3, zeros(sizeIMG),ones(sizeIMG), zeros(sizeIMG));
+%             red = cat(3, ones(sizeIMG),zeros(sizeIMG), zeros(sizeIMG));
+%             hold on;
+%             hg = imshow(green);
+%             hr = imshow(red);
+%             hold off;
+%             set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+%             set(hr, 'AlphaData',0.3* s(1).BinarySegmentation{vertebra}(:,:,i))
+%             set(hg, 'AlphaData',0.3* groundTruth)
+%         end
+%         
         % calculate jaccard and dice index
         [ResultJaccard(patient+1,vertebra+1), ResultDice(patient+1,vertebra+1)] = similarity(s(1).BinarySegmentation{vertebra},groundTruthImages,sizeIMG);
         [ResultJaccardSlice(patient+1,vertebra+1,:), ResultDiceSlice(patient+1,vertebra+1,:)] = similarity2D( s(1).BinarySegmentation{vertebra}, groundTruthImages, sizeIMG );
